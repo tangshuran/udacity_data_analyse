@@ -1,0 +1,3 @@
+http://matplotlib.org/examples/api/barchart_demo.html
+http://stackoverflow.com/questions/15360925/how-to-get-the-first-column-of-a-pandas-dataframe-as-a-series
+http://matplotlib.org/users/mathtext.html
