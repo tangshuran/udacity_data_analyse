@@ -1,0 +1,25 @@
+---
+title: "Untitled"
+author: "tang"
+date: "20 Mai 2016"
+output: html_document
+---
+```{r}
+library(ggplot2)
+setwd("E:/learning_R")
+pf<-read.csv("pseudo_facebook.tsv",sep="\t")
+qplot(x=friend_count,data=subset(pf,!is.na(gender)),binwidth=25)+
+  scale_x_continuous(limits = c(0,1000),breaks=seq(0,1000,50))+
+  facet_wrap(~gender)
+data(diamonds)
+summary(diamonds)
+qplot(x=diamonds$price,data=diamonds)+geom_histogram()
+ggplot(aes(x = age, y = friend_count), data = pf) + 
+  geom_point(alpha=1/20,position = position_jitter(h=0),color="orange")+
+  xlim(13,90)+
+  coord_trans(y="sqrt")+
+  geom_line(stat = "summary",fun.y=mean)+
+  geom_line(stat = "summary",fun.y=quantile,fun.args=list(probs=0.1),linetype=2,color="blue")
+  with(subset(pf,age<=70),cor.test(age,friend_count))
+```
+#data=pf,na.omit(pf)
