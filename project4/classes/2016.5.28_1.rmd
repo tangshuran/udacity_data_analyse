@@ -1,0 +1,25 @@
+---
+title: "2016.5.28_1"
+author: "tang"
+date: "2016年5月28日"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+qplot(x=gender,y=friend_count,data=subset(pf,!is.na(gender)),
+      geom="boxplot")
+library(reshape2)%.%
+pf.fc_by_age_gender<- pf%.%
+  filter(!is.na(gender))%.%
+  group_by(age,gender)%.%
+  summarise(mean_friend_count=mean(friend_count),
+            median_friend_count=median(friend_count),
+            n=n())%.%
+  ungroup()%.%
+  arrange(age)
+
+ggplot(aes(x = age, y = median_friend_count), data = pf.fc_by_age_gender) +   
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+```
+
