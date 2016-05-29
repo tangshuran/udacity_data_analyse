@@ -9,7 +9,7 @@ output: html_document
 library(ggplot2)
 qplot(x=gender,y=friend_count,data=subset(pf,!is.na(gender)),
       geom="boxplot")
-library(reshape2)%.%
+library(reshape2)
 pf.fc_by_age_gender<- pf%.%
   filter(!is.na(gender))%.%
   group_by(age,gender)%.%
@@ -21,5 +21,40 @@ pf.fc_by_age_gender<- pf%.%
 
 ggplot(aes(x = age, y = median_friend_count), data = pf.fc_by_age_gender) +   
   geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+
+pf.fc_by_age_gender_wide<-dcast(pf.fc_by_age_gender,
+                                age~gender,
+                                value.var ="median_friend_count")
+pf$year_joined<-floor(2014-pf$tenure/365)
+pf$year_joined_bucket<-cut(pf$year_joined,c(2004,2009,2011,2012,2014))
+with(subset(pf,tenure>=1),summary(friend_count/tenure))
+```
+
+```{r}
+setwd("D:/github/udacity_data_analyse/project4/classes")
+yo<-read.csv("yogurt.csv")
+yo$id<-factor(yo$id)
+qplot(data=yo,x=price,fill=I("#F79420"))
+yo$all.purchases<-yo$strawberry+yo$blueberry+yo$pina.colada+yo$plain+yo$mixed.berry
+set.seed(4230)
+sample.ids<-sample(levels(yo$id),16)
+ggplot(aes(x=time,y=price),data = subset(yo,id%in%sample.ids))+
+  facet_wrap(~id)+
+  geom_line()+
+  geom_point(aes(size=all.purchases),pch=1)
+library(GGally)
+theme_set(theme_minimal(20))
+set.seed(1836)
+pf_subset<-pf[,c(2:15)]
+names(pf_subset)
+library(reshape2)
+nci<-read.table("nci.tsv")
+nci.long.samp<-melt(as.matrix(nci[1:200,]))
+names(nci.long.samp)<-c("gene","case","value")
+ggplot(aes(y=gene,x=case,fill=value),data=nci.long.samp)+
+  geom_tile()+
+  scale_fill_gradientn(colors = colorRampPalette(c("blue","red"))(100))
+
+
 ```
 
