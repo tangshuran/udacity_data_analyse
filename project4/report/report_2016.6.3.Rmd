@@ -1,0 +1,204 @@
+Exploring prosperLoanData by Tang Shuran
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using
+# in your analysis in this code chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk.
+# This prevents the code from displaying in the knitted HTML output.
+# You should set echo=FALSE for all code chunks in your file.
+library(base)
+library(stats)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(lubridate)
+library(maps)
+library(reshape2)
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+setwd("E:/report")
+df<- read.csv("prosperLoanData.csv")
+```
+
+# Univariate Plots Section
+```{r echo=FALSE, Univariate_Plots}
+#interested feature: LoanStatus
+ggplot(subset(df,!is.na(LoanStatus)),aes(x=LoanStatus)) + 
+  geom_bar()
+ggplot(subset(df,!is.na(LoanStatus)),aes(x=LoanStatus)) + 
+  geom_bar(aes(y=..count../sum(..count..))) +
+  ggtitle("Proportion of Loans by Status") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+summary(df$LoanStatus)
+
+```
+
+
+
+```{r}
+#interested feature: EmploymentStatus
+ggplot(subset(df,!is.na(EmploymentStatus)),aes(x=EmploymentStatus)) + 
+  geom_bar(aes(y=..count../sum(..count..))) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+summary(df$EmploymentStatus)
+
+```
+
+```{r}
+#interested feature: EmploymentStatus
+ggplot(df,aes(x=EmploymentStatus)) + 
+  geom_bar(aes(y=..count../sum(..count..))) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+summary(df$EmploymentStatus)
+```
+
+```{r}
+table(df$Term)
+table(df$IncomeRange)
+summary(df$LoanOriginalAmount)
+df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,c(0,1000,4000,6500,8500,12000,18000,25000,35000))
+ggplot(df,aes(x=LoanOriginalAmount_cut)) + 
+  geom_bar()
+
+```
+
+```{r}
+qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))+
+  #scale_x_continuous(limits = c(0,200000),breaks=seq(0,200000,100))+
+  facet_wrap(~IsBorrowerHomeowner)
+```
+
+
+```{r}
+qplot(x=CurrentDelinquencies,data=subset(df,!is.na(CurrentDelinquencies)))+
+  scale_x_continuous(limits = c(0,83),breaks=seq(0,83,5))
+
+```
+
+
+# Univariate Analysis
+```{r}
+str(df)
+
+```
+
+
+### What is the structure of your dataset?
+LoanOriginalAmount: 
+ Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1000    4000    6500    8337   12000   35000 
+Term:
+   12    36    60 
+ 1614 87778 24545 
+AvailableBankcardCredit:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+      0     880    4100   11210   13180  646300    7544 
+LoanStatus: Cancelled, Chargedoff,Completed,Current,Defaulted, FinalPaymentInProgress, Past Due
+EmploymentStatus:Employed, Full-time, Not available, Not employed, Other, Part-time, Retired, Self-employed
+ProsperRating..Alpha.: AA, A, B, C, D, E, HR
+
+
+### What is/are the main feature(s) of interest in your dataset?
+LoanOriginalAmount,EmploymentStatus,IsBorrowerHomeowner,AvailableBankcardCredit,StatedMonthlyIncome,Occupation
+
+### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+LoanOriginationDate,Term,MonthlyLoanPayment,BorrowerAPR,LP_ServiceFees
+
+### Did you create any new variables from existing variables in the dataset?
+Yes:
+df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,c(0,1000,4000,6500,8500,12000,18000,25000,35000))
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+I log-transformed the AvailableBankcardCredit. 
+```{r}
+qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))
+
+setwd("E:/report")
+df<- read.csv("prosperLoanData.csv")
+df.Credit_and_income_by_Occupation_owner.long<-df%>%
+  filter(!is.na(IsBorrowerHomeowner))%>%
+  filter(!is.na(AvailableBankcardCredit))%>%
+  filter(!is.na(Occupation))%>%
+  group_by(Occupation,IsBorrowerHomeowner)%>%
+  summarise(mean_Credit=mean(AvailableBankcardCredit),
+            mean_income=mean(StatedMonthlyIncome),
+            n=n())%>%
+  ungroup()%>%
+  arrange(Occupation)
+df.meanCredit_by_Occupation_owner.wide<-dcast(
+  df.Credit_and_income_by_Occupation_owner.long,
+  Occupation~IsBorrowerHomeowner,
+  value.var ="mean_Credit" )
+df.meanIncome_by_Occupation_owner.wide<-dcast(
+  df.Credit_and_income_by_Occupation_owner.long,
+  Occupation~IsBorrowerHomeowner,
+  value.var ="mean_income" )
+
+```
+
+
+
+# Bivariate Plots Section
+```{r echo=FALSE, Bivariate_Plots}
+
+```
+
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+
+### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+
+
+
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+### Were there any interesting or surprising interactions between features?
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+```
+
+### Description One
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+```
+
+### Description Two
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+```
+
+### Description Three
+
+------
+
+# Reflection
