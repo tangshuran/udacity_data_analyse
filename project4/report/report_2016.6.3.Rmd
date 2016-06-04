@@ -142,12 +142,6 @@ df.medianIncome_by_Occupation_owner.wide<-dcast(
   df.Credit_and_income_by_Occupation_owner.long,
   Occupation~IsBorrowerHomeowner,
   value.var ="median_income" )
-# df.big_sample_Occupation<-df%>%
-#   filter(!is.na(Occupation))%>%
-#   group_by(Occupation)%>%
-#   summarise(n=n())%>%
-#   ungroup()%>%
-#   arrange(desc(n))
 
 
 ```
@@ -156,12 +150,33 @@ df.medianIncome_by_Occupation_owner.wide<-dcast(
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
+df.big_sample_Occupation<-df%>%
+  filter(!is.na(Occupation))%>%
+  group_by(Occupation)%>%
+  summarise(n=n())%>%
+  ungroup()%>%
+  arrange(desc(n))
+df.big_sample_Occupation[1:10,]
+interested_occupations<-c("Computer Programmer","Teacher","Administrative Assistant","Analyst","Sales - Commission")
+ggplot(aes(x=Occupation,y=StatedMonthlyIncome),data=subset(df,Occupation %in%interested_occupations))+
+  geom_boxplot()+
+  ylim(0,35000)
+ggplot(aes(x=median_income,y=mean_Credit),data = df.Credit_and_income_by_Occupation_owner.long)+
+  geom_point(alpha=0.5,color=I("red"),size=2)
+
+df$ProsperRating..Alpha. <- factor(df$ProsperRating..Alpha.,levels = c('AA','A',"B","C","D","E","HR",""),ordered = TRUE)
+ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
 
 ```
 
 # Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+```{r}
+cor.test(df.Credit_and_income_by_Occupation_owner.long$median_income,df.Credit_and_income_by_Occupation_owner.long$mean_Credit)
+
+```
 
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
 
