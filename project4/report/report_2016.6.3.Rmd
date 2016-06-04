@@ -142,6 +142,13 @@ df.medianIncome_by_Occupation_owner.wide<-dcast(
   df.Credit_and_income_by_Occupation_owner.long,
   Occupation~IsBorrowerHomeowner,
   value.var ="median_income" )
+# df.big_sample_Occupation<-df%>%
+#   filter(!is.na(Occupation))%>%
+#   group_by(Occupation)%>%
+#   summarise(n=n())%>%
+#   ungroup()%>%
+#   arrange(desc(n))
+
 
 ```
 
