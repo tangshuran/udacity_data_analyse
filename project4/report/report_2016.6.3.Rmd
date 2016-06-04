@@ -20,7 +20,7 @@ library(reshape2)
 
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
-setwd("E:/report")
+setwd("D:/github/udacity_data_analyse/project4/report")
 df<- read.csv("prosperLoanData.csv")
 ```
 
@@ -117,7 +117,7 @@ I log-transformed the AvailableBankcardCredit.
 ```{r}
 qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))
 
-setwd("E:/report")
+setwd("D:/github/udacity_data_analyse/project4/report")
 df<- read.csv("prosperLoanData.csv")
 df.Credit_and_income_by_Occupation_owner.long<-df%>%
   filter(!is.na(IsBorrowerHomeowner))%>%
@@ -126,6 +126,7 @@ df.Credit_and_income_by_Occupation_owner.long<-df%>%
   group_by(Occupation,IsBorrowerHomeowner)%>%
   summarise(mean_Credit=mean(AvailableBankcardCredit),
             mean_income=mean(StatedMonthlyIncome),
+            median_income=median(StatedMonthlyIncome),
             n=n())%>%
   ungroup()%>%
   arrange(Occupation)
@@ -137,6 +138,10 @@ df.meanIncome_by_Occupation_owner.wide<-dcast(
   df.Credit_and_income_by_Occupation_owner.long,
   Occupation~IsBorrowerHomeowner,
   value.var ="mean_income" )
+df.medianIncome_by_Occupation_owner.wide<-dcast(
+  df.Credit_and_income_by_Occupation_owner.long,
+  Occupation~IsBorrowerHomeowner,
+  value.var ="median_income" )
 
 ```
 
