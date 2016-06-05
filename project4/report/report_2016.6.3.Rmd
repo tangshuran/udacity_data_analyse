@@ -103,10 +103,10 @@ ProsperRating..Alpha.: AA, A, B, C, D, E, HR
 
 
 ### What is/are the main feature(s) of interest in your dataset?
-LoanOriginalAmount,EmploymentStatus,IsBorrowerHomeowner,AvailableBankcardCredit,StatedMonthlyIncome,Occupation
+LoanOriginalAmount,IsBorrowerHomeowner,AvailableBankcardCredit,StatedMonthlyIncome,Occupation,EmploymentStatus
 
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
-LoanOriginationDate,Term,MonthlyLoanPayment,BorrowerAPR,LP_ServiceFees
+LoanOriginationDate,Term,MonthlyLoanPayment,BorrowerAPR,LP_ServiceFees,ProsperRating
 
 ### Did you create any new variables from existing variables in the dataset?
 Yes:
@@ -167,6 +167,8 @@ ggplot(aes(x=median_income,y=mean_Credit),data = df.Credit_and_income_by_Occupat
 df$ProsperRating..Alpha. <- factor(df$ProsperRating..Alpha.,levels = c('AA','A',"B","C","D","E","HR",""),ordered = TRUE)
 ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
   geom_boxplot()
+ggplot(aes(x=ProsperRating..Alpha.,y=BorrowerAPR),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
 
 ```
 
@@ -177,17 +179,25 @@ ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),data = subset(df,!is.na
 cor.test(df.Credit_and_income_by_Occupation_owner.long$median_income,df.Credit_and_income_by_Occupation_owner.long$mean_Credit)
 
 ```
+Generally speaking, the loan original Amount tends to be larger as the ProsperRating goes higher.
+The loan original amount squeezes a lot when the prosper rating drop from C to D.
+The gap between other ratings are not that huge.
 
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
-
+The loanee with home ownership generally has a higher credit and state income than the ones without ownership.
+The state monthly income of loanees vary a lot among different occupations. Even within the same occupation, the there is huge variance for some particular occupation. Some outlier can reach even 3 or 4 times as the mean income.
 ### What was the strongest relationship you found?
-
-
+For a certain occupation, the mean credit and median come are strongly related.
+The correlation between them is as high as 0.799.
+The loanee has to pay more interests if the loan has a lower ProsperRating.
 
 
 # Multivariate Plots Section
 
+
 ```{r echo=FALSE, Multivariate_Plots}
+ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),data=subset(df,!is.na(ProsperRating..Alpha.)))+
+  geom_point(alpha=0.4,aes(color=ProsperRating..Alpha.),position = "jitter")
 
 ```
 
