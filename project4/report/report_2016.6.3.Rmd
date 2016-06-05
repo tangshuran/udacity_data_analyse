@@ -198,7 +198,9 @@ The loanee has to pay more interests if the loan has a lower ProsperRating.
 ```{r echo=FALSE, Multivariate_Plots}
 ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),data=subset(df,!is.na(ProsperRating..Alpha.)))+
   geom_point(alpha=0.4,aes(color=ProsperRating..Alpha.),position = "jitter")
-
+df.incomerange_cleaned<-df[df$IncomeRange !="Not displayed",]
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),data=subset(df.incomerange_cleaned,!is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+  geom_point(alpha=0.4,aes(color=IncomeRange),position = "jitter")
 ```
 
 # Multivariate Analysis
