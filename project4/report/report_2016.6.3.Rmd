@@ -81,10 +81,6 @@ qplot(x=CurrentDelinquencies,data=subset(df,!is.na(CurrentDelinquencies)))+
 
 
 # Univariate Analysis
-```{r}
-str(df)
-
-```
 
 
 ### What is the structure of your dataset?
@@ -117,7 +113,7 @@ I log-transformed the AvailableBankcardCredit.
 ```{r}
 qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))
 
-setwd("D:/github/udacity_data_analyse/project4/report")
+setwd("E:/learning_R")
 df<- read.csv("prosperLoanData.csv")
 df.Credit_and_income_by_Occupation_owner.long<-df%>%
   filter(!is.na(IsBorrowerHomeowner))%>%
@@ -164,7 +160,7 @@ ggplot(aes(x=Occupation,y=StatedMonthlyIncome),data=subset(df,Occupation %in%int
 ggplot(aes(x=median_income,y=mean_Credit),data = df.Credit_and_income_by_Occupation_owner.long)+
   geom_point(alpha=0.5,color=I("red"),size=2)
 
-df$ProsperRating..Alpha. <- factor(df$ProsperRating..Alpha.,levels = c('AA','A',"B","C","D","E","HR",""),ordered = TRUE)
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
 ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
   geom_boxplot()
 ggplot(aes(x=ProsperRating..Alpha.,y=BorrowerAPR),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
@@ -196,28 +192,40 @@ The loanee has to pay more interests if the loan has a lower ProsperRating.
 
 
 ```{r echo=FALSE, Multivariate_Plots}
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
 ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),data=subset(df,!is.na(ProsperRating..Alpha.)))+
-  geom_point(alpha=0.4,aes(color=ProsperRating..Alpha.),position = "jitter")
+  geom_point(alpha=0.2,aes(color=ProsperRating..Alpha.),position = "jitter")
 df.incomerange_cleaned<-df[df$IncomeRange !="Not displayed",]
+df.incomerange_cleaned$IncomeRange<-droplevels(df.incomerange_cleaned$IncomeRange)
+df.incomerange_cleaned$EmploymentStatus<-droplevels(df.incomerange_cleaned$EmploymentStatus)
+df.incomerange_cleaned$IncomeRange<-ordered(df.incomerange_cleaned$IncomeRange, levels = c("Not employed", "$0", "$1-24,999","$25,000-49,999","$50,000-74,999","$75,000-99,999","$100,000+"))
+
+df.incomerange_cleaned$EmploymentStatus<-ordered(df.incomerange_cleaned$EmploymentStatus, levels = c("Employed" , "Full-time", "Self-employed","Part-time","Retired","Not employed","Other"))
 ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),data=subset(df.incomerange_cleaned,!is.na(EmploymentStatus) & !is.na(IncomeRange)))+
-  geom_point(alpha=0.4,aes(color=IncomeRange),position = "jitter")
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")
+
 ```
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+DebtToIncomeRatio is strongly related to IncomeRange. The people who has the DebtToIncomeRatio higher than 1.25,are mostly in the range of $1-24999 for their income or not employed.
+Most people with part-time job have a low IncomeRange. 
+For people who have a DebtToIncomeRatio higher than 10, they are all in the range of $1-24999 for their income or not employed.
 
 ### Were there any interesting or surprising interactions between features?
-
-### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
-
+The Borrower's Annual Percentage Rate is closely related to the ProsperRating of the Loan.
+The loan with a higher rating trend to have a lower APR.But the borrower of the low rating loan has to pay more interest for the loan annually.
+The interest and fee of most loans are less than 5000. 
 ------
 
 # Final Plots and Summary
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
+ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
 ```
 
 ### Description One
@@ -225,6 +233,9 @@ ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),data=subset(df.incomerange_cl
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
+qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))+
+  #scale_x_continuous(limits = c(0,200000),breaks=seq(0,200000,100))+
+  facet_wrap(~IsBorrowerHomeowner)
 
 ```
 
@@ -233,6 +244,9 @@ ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),data=subset(df.incomerange_cl
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
+df.incomerange_cleaned$EmploymentStatus<-ordered(df.incomerange_cleaned$EmploymentStatus, levels = c("Employed" , "Full-time", "Self-employed","Part-time","Retired","Not employed","Other"))
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),data=subset(df.incomerange_cleaned,!is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")
 
 ```
 
