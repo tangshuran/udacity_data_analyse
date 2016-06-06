@@ -217,6 +217,8 @@ For people who have a DebtToIncomeRatio higher than 10, they are all in the rang
 The Borrower's Annual Percentage Rate is closely related to the ProsperRating of the Loan.
 The loan with a higher rating trend to have a lower APR.But the borrower of the low rating loan has to pay more interest for the loan annually.
 The interest and fee of most loans are less than 5000. 
+
+
 ------
 
 # Final Plots and Summary
