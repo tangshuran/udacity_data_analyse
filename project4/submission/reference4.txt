@@ -1,0 +1,7 @@
+1.http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
+2.https://github.com/cfcdavidchan/Data-analysis-with-R/tree/master/L2
+3.http://stackoverflow.com/questions/6422700/how-to-get-indices-of-a-sorted-array-in-python
+4.http://stackoverflow.com/questions/16308901/ggplot2-change-colours-how
+5.http://stackoverflow.com/questions/19778612/change-color-for-two-geom-point-in-ggplot2
+6.http://stackoverflow.com/questions/8774002/setting-the-color-for-an-individual-data-point
+7.http://stackoverflow.com/questions/1195826/drop-factor-levels-in-a-subsetted-data-frame
