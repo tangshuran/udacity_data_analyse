@@ -18,6 +18,11 @@ library(maps)
 library(reshape2)
 ```
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
 setwd("D:/github/udacity_data_analyse/project4/report")
@@ -60,7 +65,8 @@ summary(df$EmploymentStatus)
 table(df$Term)
 table(df$IncomeRange)
 summary(df$LoanOriginalAmount)
-df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,c(0,1000,4000,6500,8500,12000,18000,25000,35000))
+df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,
+                               c(0,1000,4000,6500,8500,12000,18000,25000,35000))
 ggplot(df,aes(x=LoanOriginalAmount_cut)) + 
   geom_bar()
 
@@ -109,14 +115,12 @@ Yes:
 df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,c(0,1000,4000,6500,8500,12000,18000,25000,35000))
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
-I log-transformed the AvailableBankcardCredit. 
+I log-transformed the AvailableBankcardCredit. Because the range of Bankcard credit is so huge, its plot do not make any sense. The log transformed plot shows us the order difference of the credit. 
 ```{r}
 qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))
 
-setwd("E:/learning_R")
-df<- read.csv("prosperLoanData.csv")
-df.Credit_and_income_by_Occupation_owner.long<-df%>%
-  filter(!is.na(IsBorrowerHomeowner))%>%
+df.Credit_and_income_by_Occupation_owner.long<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(IsBorrowerHomeowner))%>%             # filter out the observations with missed values
   filter(!is.na(AvailableBankcardCredit))%>%
   filter(!is.na(Occupation))%>%
   group_by(Occupation,IsBorrowerHomeowner)%>%
@@ -126,11 +130,11 @@ df.Credit_and_income_by_Occupation_owner.long<-df%>%
             n=n())%>%
   ungroup()%>%
   arrange(Occupation)
-df.meanCredit_by_Occupation_owner.wide<-dcast(
+df.meanCredit_by_Occupation_owner.wide<-dcast(      # get wide frame from the long one
   df.Credit_and_income_by_Occupation_owner.long,
   Occupation~IsBorrowerHomeowner,
   value.var ="mean_Credit" )
-df.meanIncome_by_Occupation_owner.wide<-dcast(
+df.meanIncome_by_Occupation_owner.wide<-dcast(    # construct new variable, named "mean_income" for each interested occupation
   df.Credit_and_income_by_Occupation_owner.long,
   Occupation~IsBorrowerHomeowner,
   value.var ="mean_income" )
@@ -146,13 +150,13 @@ df.medianIncome_by_Occupation_owner.wide<-dcast(
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
-df.big_sample_Occupation<-df%>%
+df.big_sample_Occupation<-df%>% # sort the occupation according to the observation number for each occupation
   filter(!is.na(Occupation))%>%
   group_by(Occupation)%>%
   summarise(n=n())%>%
   ungroup()%>%
   arrange(desc(n))
-df.big_sample_Occupation[1:10,]
+df.big_sample_Occupation[1:10,] # find the occupation with most observation
 interested_occupations<-c("Computer Programmer","Teacher","Administrative Assistant","Analyst","Sales - Commission")
 ggplot(aes(x=Occupation,y=StatedMonthlyIncome),data=subset(df,Occupation %in%interested_occupations))+
   geom_boxplot()+
@@ -172,7 +176,8 @@ ggplot(aes(x=ProsperRating..Alpha.,y=BorrowerAPR),data = subset(df,!is.na(df$Pro
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 ```{r}
-cor.test(df.Credit_and_income_by_Occupation_owner.long$median_income,df.Credit_and_income_by_Occupation_owner.long$mean_Credit)
+cor.test(df.Credit_and_income_by_Occupation_owner.long$median_income,
+         df.Credit_and_income_by_Occupation_owner.long$mean_Credit)
 
 ```
 Generally speaking, the loan original Amount tends to be larger as the ProsperRating goes higher.
@@ -192,16 +197,26 @@ The loanee has to pay more interests if the loan has a lower ProsperRating.
 
 
 ```{r echo=FALSE, Multivariate_Plots}
-df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
-ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),data=subset(df,!is.na(ProsperRating..Alpha.)))+
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., 
+                                  levels = c("AA","A","B","C","D","E","HR"))
+ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),
+       data=subset(df,!is.na(ProsperRating..Alpha.)))+
   geom_point(alpha=0.2,aes(color=ProsperRating..Alpha.),position = "jitter")
 df.incomerange_cleaned<-df[df$IncomeRange !="Not displayed",]
-df.incomerange_cleaned$IncomeRange<-droplevels(df.incomerange_cleaned$IncomeRange)
-df.incomerange_cleaned$EmploymentStatus<-droplevels(df.incomerange_cleaned$EmploymentStatus)
-df.incomerange_cleaned$IncomeRange<-ordered(df.incomerange_cleaned$IncomeRange, levels = c("Not employed", "$0", "$1-24,999","$25,000-49,999","$50,000-74,999","$75,000-99,999","$100,000+"))
+df.incomerange_cleaned$IncomeRange<-droplevels(
+  df.incomerange_cleaned$IncomeRange)
+df.incomerange_cleaned$EmploymentStatus<-droplevels(
+  df.incomerange_cleaned$EmploymentStatus)
+df.incomerange_cleaned$IncomeRange<-ordered(
+  df.incomerange_cleaned$IncomeRange, levels = c("Not employed", "$0", "$1-24,999","$25,000-49,999","$50,000-74,999","$75,000-99,999","$100,000+"))
 
-df.incomerange_cleaned$EmploymentStatus<-ordered(df.incomerange_cleaned$EmploymentStatus, levels = c("Employed" , "Full-time", "Self-employed","Part-time","Retired","Not employed","Other"))
-ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),data=subset(df.incomerange_cleaned,!is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+df.incomerange_cleaned$EmploymentStatus<-ordered(
+  df.incomerange_cleaned$EmploymentStatus, levels = c(
+    "Employed" , "Full-time", "Self-employed","Part-time",
+    "Retired","Not employed","Other"))
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
+       data=subset(df.incomerange_cleaned,
+                   !is.na(EmploymentStatus) & !is.na(IncomeRange)))+
   geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")
 
 ```
@@ -288,6 +303,7 @@ ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
 The employ status is strongly related to income range.For people in the range above 100000$, they are almost all emplyed,full-employed or self-emplyed.
 People with a part-time job are mostly within range "1-24999".
 For people whose DebtToIncome Ratio higher than 1.25, they are all within income range "1-24999" or not employed.
+
 ------
 
 # Reflection
