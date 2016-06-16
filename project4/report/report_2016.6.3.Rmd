@@ -76,29 +76,48 @@ Again, I think it would be better to change the y value into percentage.
 table(df$Term)
 table(df$IncomeRange)
 summary(df$LoanOriginalAmount)
+```
+Firstly, i am trying to get familiar with these variables.
+```{r}
 ggplot(aes(x="LoanOriginalAmount of All",y=LoanOriginalAmount),data = subset(df,!is.na(df$LoanOriginalAmount)))+
   geom_boxplot()
+```
+Then make a box plot for this loan amount variable.
+```{r}
 df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,
                                c(0,1000,4000,6500,8500,12000,18000,25000,35000))
 ggplot(df,aes(x=LoanOriginalAmount_cut)) + 
   geom_bar()+
 theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+The box plot is not clear enough for me. I cut the variable into 10th quantiles. And make this bar plot.
+It shows that, nearly half of the loans are between 1000-5000$.There are only a little amount of loan beyond 25000$.
+```{r}
+qplot(x=AvailableBankcardCredit,data=subset(df,!is.na(AvailableBankcardCredit)))+
+  facet_wrap(~IsBorrowerHomeowner)
 
 ```
-
+The bank credit of a loan apllier is a strong indication that shows how much one is trusted by the bank.
+I am also curious about the homeownership of each loanee, so i facet the variable.But the x value seems to be unsuitable. The range is too wide for most observation.
 ```{r}
 qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))+
-  #scale_x_continuous(limits = c(0,200000),breaks=seq(0,200000,100))+
   facet_wrap(~IsBorrowerHomeowner)
 ```
-
-
+Then instead of the credit, i use log10 value of the credit. There are more obvious difference between the homeowner and non-homeowner.Basicly speaking the homeowners have more credit than the non-homeowner.
+The number order distribution is more appearent in this situation.
+It is worth pointing out that, some loanees do not have any credit.
+```{r}
+qplot(x=CurrentDelinquencies,data=subset(df,!is.na(CurrentDelinquencies)))
+```
+That shows, how many loanee do have Delinquencies.
 ```{r}
 qplot(x=CurrentDelinquencies,data=subset(df,!is.na(CurrentDelinquencies)))+
-  scale_x_continuous(limits = c(0,83),breaks=seq(0,83,5))
+  scale_x_continuous(limits = c(0,18),breaks=seq(0,18,5))+
+  ylim(0,13000)
 
 ```
-
+The former plot is too rough.We can see more detail if we zoom in the plot.
+According the plot, most loanees do not have a delinquency.
 
 # Univariate Analysis
 
