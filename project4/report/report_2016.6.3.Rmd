@@ -33,11 +33,16 @@ df<- read.csv("prosperLoanData.csv")
 ```{r echo=FALSE, Univariate_Plots}
 #interested feature: LoanStatus
 ggplot(subset(df,!is.na(LoanStatus)),aes(x=LoanStatus)) + 
-  geom_bar()
-ggplot(subset(df,!is.na(LoanStatus)),aes(x=LoanStatus)) + 
+  geom_bar()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+df$LoanStatusPlotting <- gsub("Past Due.*", "Past Due", df$LoanStatus) 
+ggplot(subset(df,!is.na(LoanStatusPlotting)),aes(x=LoanStatusPlotting)) + 
+    geom_bar()+
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+ggplot(subset(df,!is.na(LoanStatusPlotting)),aes(LoanStatusPlotting)) + 
   geom_bar(aes(y=..count../sum(..count..))) +
   ggtitle("Proportion of Loans by Status") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
 summary(df$LoanStatus)
 
 ```
