@@ -28,36 +28,42 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
 setwd("D:/github/udacity_data_analyse/project4/report")
 df<- read.csv("prosperLoanData.csv")
 ```
-
+#Reasoning and Introduction
+I choo´sed this data set, because i find that, this dataset has the most variables. I can choose from these variables, and explore more than the other dataset.
+I am also interested in the loans. How do the bank evaluate the loanees ? How do they record each loan ? How can we understand each loan deal ? I want find the answers.
+This dataset includes 113k observations. That is not a small amount, which makes more statistical meaning.
 # Univariate Plots Section
 ```{r echo=FALSE, Univariate_Plots}
 #interested feature: LoanStatus
 ggplot(subset(df,!is.na(LoanStatus)),aes(x=LoanStatus)) + 
   geom_bar()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+I tried to plot the loanstatus out with bar chart, but there are seldom observation labeled as "Past Due".We can hardly see the boxes.
+```{r}
 df$LoanStatusPlotting <- gsub("Past Due.*", "Past Due", df$LoanStatus) 
 ggplot(subset(df,!is.na(LoanStatusPlotting)),aes(x=LoanStatusPlotting)) + 
     geom_bar()+
     theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+Then, i think it would be better if i merge the Past Due boxes into just one box. That would be more meaningful.
+```{r}
 ggplot(subset(df,!is.na(LoanStatusPlotting)),aes(LoanStatusPlotting)) + 
   geom_bar(aes(y=..count../sum(..count..))) +
   ggtitle("Proportion of Loans by Status") + 
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 summary(df$LoanStatus)
-
 ```
-
-
-
+I think,there maybe better choice for the y axis value except just count. The percentage number may have a better illustration as the proportion of each kind loan status.
 ```{r}
 #interested feature: EmploymentStatus
 ggplot(subset(df,!is.na(EmploymentStatus)),aes(x=EmploymentStatus)) + 
   geom_bar(aes(y=..count../sum(..count..))) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-summary(df$EmploymentStatus)
 
 ```
-
+According to my understanding, the employment status of a loanee has great influence on their application for the loan.
+The employment status implicates the income stability and quantity of someone. That is essential for evaluating a loanee.
 ```{r}
 #interested feature: EmploymentStatus
 ggplot(df,aes(x=EmploymentStatus)) + 
@@ -65,15 +71,18 @@ ggplot(df,aes(x=EmploymentStatus)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 summary(df$EmploymentStatus)
 ```
-
+Again, I think it would be better to change the y value into percentage.
 ```{r}
 table(df$Term)
 table(df$IncomeRange)
 summary(df$LoanOriginalAmount)
+ggplot(aes(x="LoanOriginalAmount of All",y=LoanOriginalAmount),data = subset(df,!is.na(df$LoanOriginalAmount)))+
+  geom_boxplot()
 df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,
                                c(0,1000,4000,6500,8500,12000,18000,25000,35000))
 ggplot(df,aes(x=LoanOriginalAmount_cut)) + 
-  geom_bar()
+  geom_bar()+
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
