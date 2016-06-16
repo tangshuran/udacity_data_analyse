@@ -29,7 +29,7 @@ setwd("D:/github/udacity_data_analyse/project4/report")
 df<- read.csv("prosperLoanData.csv")
 ```
 #Reasoning and Introduction
-I choo´sed this data set, because i find that, this dataset has the most variables. I can choose from these variables, and explore more than the other dataset.
+I choosed this data set, because i find that, this dataset has the most variables. I can choose from these variables, and explore more than the other dataset.
 I am also interested in the loans. How do the bank evaluate the loanees ? How do they record each loan ? How can we understand each loan deal ? I want find the answers.
 This dataset includes 113k observations. That is not a small amount, which makes more statistical meaning.
 # Univariate Plots Section
@@ -91,7 +91,9 @@ ggplot(df,aes(x=LoanOriginalAmount_cut)) +
 theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 The box plot is not clear enough for me. I cut the variable into 10th quantiles. And make this bar plot.
-It shows that, nearly half of the loans are between 1000-5000$.There are only a little amount of loan beyond 25000$.
+It shows that, nearly half of the loans are between 1000-5000$.
+There are only a little amount of loan beyond 25000$.
+
 ```{r}
 qplot(x=AvailableBankcardCredit,data=subset(df,!is.na(AvailableBankcardCredit)))+
   facet_wrap(~IsBorrowerHomeowner)
