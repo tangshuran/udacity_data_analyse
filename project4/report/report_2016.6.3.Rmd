@@ -13,8 +13,8 @@ library(stats)
 library(dplyr)
 library(ggplot2)
 library(knitr)
-library(lubridate)
-library(maps)
+#library(lubridate)
+#library(maps)
 library(reshape2)
 ```
 
@@ -25,13 +25,15 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
 
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
-setwd("D:/github/udacity_data_analyse/project4/report")
+setwd("E:/learning_R")
 df<- read.csv("prosperLoanData.csv")
 ```
+
 #Reasoning and Introduction
-I choo´sed this data set, because i find that, this dataset has the most variables. I can choose from these variables, and explore more than the other dataset.
+I choosed this data set, because i find that, this dataset has the most variables. I can choose from these variables, and explore more than the other dataset.
 I am also interested in the loans. How do the bank evaluate the loanees ? How do they record each loan ? How can we understand each loan deal ? I want find the answers.
 This dataset includes 113k observations. That is not a small amount, which makes more statistical meaning.
+
 # Univariate Plots Section
 ```{r echo=FALSE, Univariate_Plots}
 #interested feature: LoanStatus
@@ -91,7 +93,9 @@ ggplot(df,aes(x=LoanOriginalAmount_cut)) +
 theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 The box plot is not clear enough for me. I cut the variable into 10th quantiles. And make this bar plot.
-It shows that, nearly half of the loans are between 1000-5000$.There are only a little amount of loan beyond 25000$.
+It shows that, nearly half of the loans are between 1000-5000$.
+
+There are only a little amount of loan beyond 25000$.
 ```{r}
 qplot(x=AvailableBankcardCredit,data=subset(df,!is.na(AvailableBankcardCredit)))+
   facet_wrap(~IsBorrowerHomeowner)
@@ -145,12 +149,14 @@ LoanOriginationDate,Term,MonthlyLoanPayment,BorrowerAPR,LP_ServiceFees,ProsperRa
 
 ### Did you create any new variables from existing variables in the dataset?
 Yes:
+
 df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,c(0,1000,4000,6500,8500,12000,18000,25000,35000))
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 I log-transformed the AvailableBankcardCredit. Because the range of Bankcard credit is so huge, its plot do not make any sense. The log transformed plot shows us the order difference of the credit. 
 ```{r}
-qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))
+qplot(x=log10(AvailableBankcardCredit+1),
+      data=subset(df,!is.na(AvailableBankcardCredit)))
 
 df.Credit_and_income_by_Occupation_owner.long<-df%>% # here i construct new data frame, both long and wide, for later use
   filter(!is.na(IsBorrowerHomeowner))%>%             # filter out the observations with missed values
@@ -190,20 +196,32 @@ df.big_sample_Occupation<-df%>% # sort the occupation according to the observati
   ungroup()%>%
   arrange(desc(n))
 df.big_sample_Occupation[1:10,] # find the occupation with most observation
-interested_occupations<-c("Computer Programmer","Teacher","Administrative Assistant","Analyst","Sales - Commission")
-ggplot(aes(x=Occupation,y=StatedMonthlyIncome),data=subset(df,Occupation %in%interested_occupations))+
+interested_occupations<-c("Computer Programmer","Teacher",
+                          "Administrative Assistant","Analyst","Sales - Commission") # select the interested occupation from observations
+ggplot(aes(x=Occupation,y=StatedMonthlyIncome),
+       data=subset(df,Occupation %in%interested_occupations))+
   geom_boxplot()+
-  ylim(0,35000)
-ggplot(aes(x=median_income,y=mean_Credit),data = df.Credit_and_income_by_Occupation_owner.long)+
-  geom_point(alpha=0.5,color=I("red"),size=2)
-
-df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
-ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
-  geom_boxplot()
-ggplot(aes(x=ProsperRating..Alpha.,y=BorrowerAPR),data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
-  geom_boxplot()
+  ylim(0,35000) #neglect the outliers
 
 ```
+The income of the interested occupations are shown with boxplot.
+```{r}
+ggplot(aes(x=median_income,y=mean_Credit),
+       data = df.Credit_and_income_by_Occupation_owner.long)+
+  geom_point(alpha=0.5,color=I("red"),size=2)
+```
+This plot shows that, the relationship between median income and mean credit for different occupation.  
+```{r}
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., 
+                                  levels = c("AA","A","B","C","D","E","HR"))
+ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),
+       data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
+ggplot(aes(x=ProsperRating..Alpha.,y=BorrowerAPR),
+       data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
+```
+The BorrowerAPR clearly increase as the rating goes down.
 
 # Bivariate Analysis
 
@@ -253,6 +271,16 @@ ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
   geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")
 
 ```
+Most of the points are densely located in the lower region and will definitely benefit with a different scale. And we can also remove the outliers at the top of the plot.
+```{r}
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
+       data=subset(df.incomerange_cleaned,
+                   !is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")+
+  ylim(0,2.5)
+
+```
+This looks much better.
 
 # Multivariate Analysis
 
@@ -273,8 +301,7 @@ The interest and fee of most loans are less than 5000.
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., 
-                                  levels = c("AA","A","B","C","D","E","HR"))
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
 ggplot(aes(x=ProsperRating..Alpha.,
            y=LoanOriginalAmount),
        data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
@@ -325,7 +352,8 @@ df.incomerange_cleaned$EmploymentStatus<-ordered(
 ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
        data=subset(df.incomerange_cleaned,
                    !is.na(EmploymentStatus) & !is.na(IncomeRange)))+
-  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")+
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter",size=1)+
+  ylim(0,1)+
   labs(title="DebtToIncome Ratio by Income Range and Employment Status",
        x="Employment Status",
        y="Debt to Income Ratio")
