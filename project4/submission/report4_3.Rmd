@@ -1,0 +1,393 @@
+Exploring prosperLoanData by Tang Shuran
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using
+# in your analysis in this code chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk.
+# This prevents the code from displaying in the knitted HTML output.
+# You should set echo=FALSE for all code chunks in your file.
+library(base)
+library(stats)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+#library(lubridate)
+#library(maps)
+library(reshape2)
+```
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+setwd("D:/github/udacity_data_analyse/project4/report")
+df<- read.csv("prosperLoanData.csv")
+```
+
+#Reasoning and Introduction
+I choosed this data set, because i find that, this dataset has the most variables. I can choose from these variables, and explore more than the other dataset.
+I am also interested in the loans. How do the bank evaluate the loanees ? How do they record each loan ? How can we understand each loan deal ? I want find the answers.
+This dataset includes 113k observations. That is not a small amount, which makes more statistical meaning.
+
+# Univariate Plots Section
+```{r echo=FALSE, Univariate_Plots}
+#interested feature: LoanStatus
+ggplot(subset(df,!is.na(LoanStatus)),aes(x=LoanStatus)) + 
+  geom_bar()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+I tried to plot the loanstatus out with bar chart, but there are seldom observation labeled as "Past Due".We can hardly see the boxes.
+```{r}
+df$LoanStatusPlotting <- gsub("Past Due.*", "Past Due", df$LoanStatus) 
+ggplot(subset(df,!is.na(LoanStatusPlotting)),aes(x=LoanStatusPlotting)) + 
+    geom_bar()+
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+Then, i think it would be better if i merge the Past Due boxes into just one box. That would be more meaningful.
+```{r}
+ggplot(subset(df,!is.na(LoanStatusPlotting)),aes(LoanStatusPlotting)) + 
+  geom_bar(aes(y=..count../sum(..count..))) +
+  ggtitle("Proportion of Loans by Status") + 
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+summary(df$LoanStatus)
+```
+I think,there maybe better choice for the y axis value except just count. The percentage number may have a better illustration as the proportion of each kind loan status.
+```{r}
+#interested feature: EmploymentStatus
+ggplot(subset(df,!is.na(EmploymentStatus)),aes(x=EmploymentStatus)) + 
+  geom_bar(aes(y=..count../sum(..count..))) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+According to my understanding, the employment status of a loanee has great influence on their application for the loan.
+The employment status implicates the income stability and quantity of someone. That is essential for evaluating a loanee.
+```{r}
+#interested feature: EmploymentStatus
+ggplot(df,aes(x=EmploymentStatus)) + 
+  geom_bar(aes(y=..count../sum(..count..))) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+summary(df$EmploymentStatus)
+```
+Again, I think it would be better to change the y value into percentage.
+```{r}
+table(df$Term)
+table(df$IncomeRange)
+summary(df$LoanOriginalAmount)
+```
+Firstly, i am trying to get familiar with these variables.
+```{r}
+ggplot(aes(x=LoanOriginalAmount),data = subset(df,!is.na(df$LoanOriginalAmount)))+
+  geom_area(stat = "bin")
+```
+The commen amount of loans are around 3000, 10000,15000 and 20000.
+```{r}
+df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,
+                               c(0,1000,4000,6500,8500,12000,18000,25000,35000))
+ggplot(df,aes(x=LoanOriginalAmount_cut)) + 
+  geom_bar()+
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+After I cut the variable into 10th quantiles, it would be more clear.
+It shows that, nearly half of the loans are between 1000-5000$.
+There are only a little amount of loan beyond 25000$.
+
+```{r}
+qplot(x=AvailableBankcardCredit,data=subset(df,!is.na(AvailableBankcardCredit)))+
+  facet_wrap(~IsBorrowerHomeowner)
+
+```
+The bank credit of a loan apllier is a strong indication that shows how much one is trusted by the bank.
+I am also curious about the homeownership of each loanee, so i facet the variable.But the x value seems to be unsuitable. The range is too wide for most observation.
+```{r}
+qplot(x=log10(AvailableBankcardCredit+1),data=subset(df,!is.na(AvailableBankcardCredit)))+
+  facet_wrap(~IsBorrowerHomeowner)
+```
+Then instead of the credit, i use log10 value of the credit. There are more obvious difference between the homeowner and non-homeowner.Basicly speaking the homeowners have more credit than the non-homeowner.
+The number order distribution is more appearent in this situation.
+It is worth pointing out that, some loanees do not have any credit.
+```{r}
+qplot(x=CurrentDelinquencies,data=subset(df,!is.na(CurrentDelinquencies)))
+```
+That shows, how many loanee do have Delinquencies.
+```{r}
+qplot(x=CurrentDelinquencies,data=subset(df,!is.na(CurrentDelinquencies)))+
+  scale_x_continuous(limits = c(0,18),breaks=seq(0,18,5))+
+  ylim(0,13000)
+
+```
+The former plot is too rough.We can see more detail if we zoom in the plot.
+According the plot, most loanees do not have a delinquency.
+
+# Univariate Analysis
+
+
+### What is the structure of your dataset?
+LoanOriginalAmount: 
+ Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1000    4000    6500    8337   12000   35000 
+Term:
+   12    36    60 
+ 1614 87778 24545 
+AvailableBankcardCredit:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+      0     880    4100   11210   13180  646300    7544 
+LoanStatus: Cancelled, Chargedoff,Completed,Current,Defaulted, FinalPaymentInProgress, Past Due
+EmploymentStatus:Employed, Full-time, Not available, Not employed, Other, Part-time, Retired, Self-employed
+ProsperRating..Alpha.: AA, A, B, C, D, E, HR
+
+
+### What is/are the main feature(s) of interest in your dataset?
+LoanOriginalAmount,IsBorrowerHomeowner,AvailableBankcardCredit,StatedMonthlyIncome,Occupation,EmploymentStatus
+
+### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+LoanOriginationDate,Term,MonthlyLoanPayment,BorrowerAPR,LP_ServiceFees,ProsperRating
+
+### Did you create any new variables from existing variables in the dataset?
+Yes:
+
+df$LoanOriginalAmount_cut<-cut(df$LoanOriginalAmount,c(0,1000,4000,6500,8500,12000,18000,25000,35000))
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+I log-transformed the AvailableBankcardCredit. Because the range of Bankcard credit is so huge, its plot do not make any sense. The log transformed plot shows us the order difference of the credit. 
+```{r}
+qplot(x=log10(AvailableBankcardCredit+1),
+      data=subset(df,!is.na(AvailableBankcardCredit)))
+
+df.Credit_and_income_by_Occupation_owner.long<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(IsBorrowerHomeowner))%>%             # filter out the observations with missed values
+  filter(!is.na(AvailableBankcardCredit))%>%
+  filter(!is.na(Occupation))%>%
+  group_by(Occupation,IsBorrowerHomeowner)%>%
+  summarise(mean_Credit=mean(AvailableBankcardCredit),
+            mean_income=mean(StatedMonthlyIncome),
+            median_income=median(StatedMonthlyIncome),
+            n=n())%>%
+  ungroup()%>%
+  arrange(Occupation)
+df.meanCredit_by_Occupation_owner.wide<-dcast(      # get wide frame from the long one
+  df.Credit_and_income_by_Occupation_owner.long,
+  Occupation~IsBorrowerHomeowner,
+  value.var ="mean_Credit" )
+df.meanIncome_by_Occupation_owner.wide<-dcast(    # construct new variable, named "mean_income" for each interested occupation
+  df.Credit_and_income_by_Occupation_owner.long,
+  Occupation~IsBorrowerHomeowner,
+  value.var ="mean_income" )
+df.medianIncome_by_Occupation_owner.wide<-dcast(
+  df.Credit_and_income_by_Occupation_owner.long,
+  Occupation~IsBorrowerHomeowner,
+  value.var ="median_income" )
+
+
+```
+
+
+
+# Bivariate Plots Section
+```{r echo=FALSE, Bivariate_Plots}
+df.big_sample_Occupation<-df%>% # sort the occupation according to the observation number for each occupation
+  filter(!is.na(Occupation))%>%
+  group_by(Occupation)%>%
+  summarise(n=n())%>%
+  ungroup()%>%
+  arrange(desc(n))
+df.big_sample_Occupation[1:10,] # find the occupation with most observation
+interested_occupations<-c("Computer Programmer","Teacher",
+                          "Administrative Assistant","Analyst","Sales - Commission") # select the interested occupation from observations
+ggplot(aes(x=Occupation,y=StatedMonthlyIncome),
+       data=subset(df,Occupation %in%interested_occupations))+
+  geom_boxplot()+
+  ylim(0,35000) #neglect the outliers
+
+```
+The income of the interested occupations are shown with boxplot.
+```{r}
+ggplot(aes(x=median_income,y=mean_Credit),
+       data = df.Credit_and_income_by_Occupation_owner.long)+
+  geom_point(alpha=0.5,color=I("red"),size=2)+
+  geom_smooth(method = "lm")
+```
+This plot shows that, the relationship between median income and mean credit for different occupation.
+The linear regression shows that, we have a positive slope,and the intercept is around 3000$.
+```{r}
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., 
+                                  levels = c("AA","A","B","C","D","E","HR"))
+ggplot(aes(x=ProsperRating..Alpha.,y=LoanOriginalAmount),
+       data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
+ggplot(aes(x=ProsperRating..Alpha.,y=BorrowerAPR),
+       data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()
+```
+The BorrowerAPR clearly increase as the rating goes down.
+
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+```{r}
+cor.test(df.Credit_and_income_by_Occupation_owner.long$median_income,
+         df.Credit_and_income_by_Occupation_owner.long$mean_Credit)
+
+```
+Generally speaking, the loan original Amount tends to be larger as the ProsperRating goes higher.
+The loan original amount squeezes a lot when the prosper rating drop from C to D.
+The gap between other ratings are not that huge.
+
+### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+The loanee with home ownership generally has a higher credit and state income than the ones without ownership.
+The state monthly income of loanees vary a lot among different occupations. Even within the same occupation, the there is huge variance for some particular occupation. Some outlier can reach even 3 or 4 times as the mean income.
+### What was the strongest relationship you found?
+For a certain occupation, the mean credit and median come are strongly related.
+The correlation between them is as high as 0.799.
+The loanee has to pay more interests if the loan has a lower ProsperRating.
+
+
+# Multivariate Plots Section
+
+
+```{r echo=FALSE, Multivariate_Plots}
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., 
+                                  levels = c("AA","A","B","C","D","E","HR"))
+ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),
+       data=subset(df,!is.na(ProsperRating..Alpha.)))+
+  geom_point(alpha=0.2,aes(color=ProsperRating..Alpha.),position = "jitter")+
+  scale_color_manual(values=colorRampPalette(c("#eff3ff","#084594"))(7))
+df.incomerange_cleaned<-df[df$IncomeRange !="Not displayed",]
+df.incomerange_cleaned<-df[df$IncomeRange !="Not employed",]
+df.incomerange_cleaned$IncomeRange<-droplevels(
+  df.incomerange_cleaned$IncomeRange)
+df.incomerange_cleaned$EmploymentStatus<-droplevels(
+  df.incomerange_cleaned$EmploymentStatus)
+df.incomerange_cleaned$IncomeRange<-ordered(
+  df.incomerange_cleaned$IncomeRange, levels = c( "$0", "$1-24,999","$25,000-49,999","$50,000-74,999","$75,000-99,999","$100,000+"))
+
+df.incomerange_cleaned$EmploymentStatus<-ordered(
+  df.incomerange_cleaned$EmploymentStatus, levels = c(
+    "Employed" , "Full-time", "Self-employed","Part-time",
+    "Retired","Not employed","Other"))
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
+       data=subset(df.incomerange_cleaned,
+                   !is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+  scale_color_manual(values=colorRampPalette(c("#eff3ff","#084594"))(6))+
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")
+
+```
+Most of the points are densely located in the lower region and will definitely benefit with a different scale. And we can also remove the outliers at the top of the plot.
+```{r}
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
+       data=subset(df.incomerange_cleaned,
+                   !is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter")+
+  scale_color_manual(values=colorRampPalette(c("#eff3ff","#084594"))(6))+
+  ylim(0,2.5)
+
+```
+This looks much better.
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+DebtToIncomeRatio is strongly related to IncomeRange. The people who has the DebtToIncomeRatio higher than 1.25,are mostly in the range of $1-24999 for their income or not employed.
+Most people with part-time job have a low IncomeRange. 
+For people who have a DebtToIncomeRatio higher than 10, they are all in the range of $1-24999 for their income or not employed.
+
+### Were there any interesting or surprising interactions between features?
+The Borrower's Annual Percentage Rate is closely related to the ProsperRating of the Loan.
+The loan with a higher rating trend to have a lower APR.But the borrower of the low rating loan has to pay more interest for the loan annually.
+The interest and fee of most loans are less than 5000. 
+
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha., levels = c("AA","A","B","C","D","E","HR"))
+ggplot(aes(x=ProsperRating..Alpha.,
+           y=LoanOriginalAmount),
+       data = subset(df,!is.na(df$ProsperRating..Alpha.)))+
+  geom_boxplot()+
+  labs(title="Relation between Prosper Rating and Loan Amount",
+       x="Prosper Rating(Alpha)",
+       y="Loan Origina Amount($)")
+
+```
+
+### Description One
+There is slightly loan amount difference between the prosper rating "AA","A","B","C". But when the rating get forward lower, the amount drop steeply.
+We can also find that, the amount distribution for rating "E" and "HR", are not very uniformly distributed.
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+qplot(x=AvailableBankcardCredit,
+      data=subset(df,!is.na(AvailableBankcardCredit)))+
+  scale_x_log10()+
+  facet_wrap(~IsBorrowerHomeowner)+
+  labs(title="Bankcard Credit by Homeownership",
+       x="log10 of Loanee Bankcard Credit",
+       y="Loanee Count Number")
+
+```
+
+### Description Two
+The available credit for most people is between 1000-12000$.
+From the plot , we can find that , about 5000 loanees do not have available credit.
+Generally speaking, Loanees who have a homeownership possess a higher available credit.
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+df.incomerange_cleaned<-df[df$IncomeRange !="Not displayed",]
+df.incomerange_cleaned<-df[df$IncomeRange !="Not employed",]
+df.incomerange_cleaned$IncomeRange<-droplevels(
+  df.incomerange_cleaned$IncomeRange)
+df.incomerange_cleaned$EmploymentStatus<-droplevels(
+  df.incomerange_cleaned$EmploymentStatus)
+df.incomerange_cleaned$IncomeRange<-ordered(
+  df.incomerange_cleaned$IncomeRange, 
+  levels = c("$0","$1-24,999","$25,000-49,999",
+             "$50,000-74,999","$75,000-99,999","$100,000+"))
+df.incomerange_cleaned$EmploymentStatus<-ordered(
+  df.incomerange_cleaned$EmploymentStatus, 
+  levels = c("Employed" , "Full-time", "Self-employed",
+             "Part-time","Retired","Not employed","Other"))
+
+ggplot(aes(x=EmploymentStatus,y=DebtToIncomeRatio),
+       data=subset(df.incomerange_cleaned,
+                   !is.na(EmploymentStatus) & !is.na(IncomeRange)))+
+  geom_point(alpha=0.8,aes(color=IncomeRange),position = "jitter",size=1)+
+  scale_color_manual(values=colorRampPalette(c("#eff3ff","#084594"))(6))+
+  ylim(0,1)+
+  labs(title="DebtToIncome Ratio by Income Range and Employment Status",
+       x="Employment Status",
+       y="Debt to Income Ratio")
+
+```
+
+### Description Three
+The employ status is strongly related to income range.For people in the range above 100000$, they are almost all emplyed,full-employed or self-emplyed.
+People with a part-time job are mostly within range "1-24999".
+For people whose DebtToIncome Ratio higher than 1.25, they are all within income range "1-24999" or not employed.
+
+------
+
+# Reflection
+
+The biggest challenge that i have met in this report is that, i am not familiar with the data variable.I have to firstly figure out the meaning of the variables, and then pick up some interesting ones.
+For the interested variables, i do not know the relation between them. I have to guess their potential connection, and choose corresponding plot type to examine my hypothesis, over and over again. Finally, i get some meaningful result according to my understanding.
+Another problem is that, when i tried to use Bankcard Credit as x axis value. The range is so huge. So insteadly, i use log10 value of the credits, the plot make more sense then.
+The limitation of my exploration is that, 
+
+1. the dataset is big enough. So the result must be influenced by fortuity.
+
+2. I didn't construct the cleaning process to delete the outliers.
+
+3. Some critical information about the loanees are not included in the data set. For example, age, sex, education level, height,weight
+
+For future work, if we can get more information about each loanee, we can try to build a mathematical model to predict the LoanOriginalAmount or BorrowerAPR for each observation.
+If we can get more data about the appliers who did not get the loan, we can try to find the decision tree of the bankers.
