@@ -255,7 +255,8 @@ df$ProsperRating..Alpha.<-ordered(df$ProsperRating..Alpha.,
 ggplot(aes(x=BorrowerAPR,y=LP_InterestandFees),
        data=subset(df,!is.na(ProsperRating..Alpha.)))+
   geom_point(alpha=0.2,aes(color=ProsperRating..Alpha.),position = "jitter")+
-  scale_color_manual(values=colorRampPalette(c("#eff3ff","#084594"))(7))
+  scale_colour_brewer(palette="Blues", direction = -1)
+  #scale_color_manual(values=colorRampPalette(c("#eff3ff","#084594"))(7))
 df.incomerange_cleaned<-df[df$IncomeRange !="Not displayed",]
 df.incomerange_cleaned<-df[df$IncomeRange !="Not employed",]
 df.incomerange_cleaned$IncomeRange<-droplevels(
