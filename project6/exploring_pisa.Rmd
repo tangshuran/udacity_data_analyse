@@ -15,7 +15,7 @@ library(psych)
 knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 setwd("D:/github/udacity_data_analyse/project6")
-df<- read.csv("pisa2012.csv")
+df<- read.csv("pisa2012.csv",encoding="UTF-8")
 
 ```
 
@@ -42,10 +42,37 @@ ggplot(aes(x=ST37Q05,y=ST57Q01),data = subset(df,!is.na(df$ST37Q05)))+#x is Math
 ```
 
 ```{r}
-interest_index_begin<-which(colnames(df)=="PV1MACS")
-len<-5
+interest_index_begin<-which(colnames(df)=="PV1MATH")
+len<-38
 interest_index_end<-interest_index_begin+len-1
 apply(df[interest_index_begin:interest_index_end],2,de)
-
+math_names=colnames(df)[interest_index_begin:interest_index_end]
+df$math_score <- rowMeans(subset(df, select = math_names), na.rm = FALSE)
+###########################################
+interest_index_begin<-which(colnames(df)=="PV1READ")
+len<-5
+interest_index_end<-interest_index_begin+len-1
+#apply(df[interest_index_begin:interest_index_end],2,de)
+reading_names=colnames(df)[interest_index_begin:interest_index_end]
+df$math_score <- rowMeans(subset(df, select = reading_names), na.rm = FALSE)
+###############################
+df$ST88Q01 <-ordered(
+  df$ST88Q01, levels = c("Strongly disagree", "Disagree","Agree","Strongly agree"))
+############################
+interest_index_begin<-which(colnames(df)=="IC08Q01")
+len<-8
+interest_index_end<-interest_index_begin+len-1
+apply(df[interest_index_begin:interest_index_end],2,de)
+###########################################
+ggplot(aes(x=IMMIG,y=math_score),
+       data=subset(df,!is.na(ST88Q01) & !is.na(math_score)& !is.na(IMMIG)))+
+  geom_point(alpha=0.2,aes(color=ST88Q01),position = "jitter")
+ggplot(aes(x=IMMIG,y=math_score),data = subset(df,!is.na(math_score)& !is.na(IMMIG)))+
+  geom_boxplot()+
+  ylim(250,650)
+ggplot(aes(x=ST88Q01,y=math_score),data = subset(df,!is.na(math_score)& !is.na(ST88Q01)))+
+  geom_boxplot()
+ggplot(aes(x=IC08Q11,y=math_score),data = subset(df,!is.na(math_score)& !is.na(IC08Q11)))+
+  geom_boxplot()
 ```
 
