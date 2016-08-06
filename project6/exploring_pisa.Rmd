@@ -54,7 +54,7 @@ len<-5
 interest_index_end<-interest_index_begin+len-1
 #apply(df[interest_index_begin:interest_index_end],2,de)
 reading_names=colnames(df)[interest_index_begin:interest_index_end]
-df$math_score <- rowMeans(subset(df, select = reading_names), na.rm = FALSE)
+df$reading_score <- rowMeans(subset(df, select = reading_names), na.rm = FALSE)
 ###############################
 df$ST88Q01 <-ordered(
   df$ST88Q01, levels = c("Strongly disagree", "Disagree","Agree","Strongly agree"))
@@ -74,5 +74,17 @@ ggplot(aes(x=ST88Q01,y=math_score),data = subset(df,!is.na(math_score)& !is.na(S
   geom_boxplot()
 ggplot(aes(x=IC08Q11,y=math_score),data = subset(df,!is.na(math_score)& !is.na(IC08Q11)))+
   geom_boxplot()
+ggplot(aes(x=IC08Q11,y=reading_score),data = subset(df,!is.na(reading_score)& !is.na(IC08Q11)))+
+  geom_boxplot()
+ggplot(aes(x=ST88Q01,y=reading_score),data = subset(df,!is.na(math_score)& !is.na(ST88Q01)))+
+  geom_boxplot()
+```
+
+```{r}
+interest_index_begin<-which(colnames(df)=="ST93Q01")
+len<-5
+interest_index_end<-interest_index_begin+len-1
+apply(df[interest_index_begin:interest_index_end],2,de)
+
 ```
 
