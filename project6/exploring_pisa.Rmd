@@ -1,0 +1,51 @@
+---
+title: "exploring1"
+author: "tang"
+date: "2016年8月6日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(base)
+library(stats)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(psych)
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+setwd("D:/github/udacity_data_analyse/project6")
+df<- read.csv("pisa2012.csv")
+
+```
+
+```{r}
+
+# de<- function(x){
+#   invisible(capture.output(mm<-str(x)))
+#   nn<-summary(x)
+#   result<-list(mm=mm,nn=nn)
+#   return(result)
+# 
+# }
+de <- function(x) {
+      c(str = str(x), summary = summary(x))
+}
+```
+
+```{r}
+ggplot(aes(x=ST26Q04,y=OUTHOURS),data = subset(df,!is.na(df$OUTHOURS)))+
+  geom_boxplot()+
+  ylim(0,25)
+ggplot(aes(x=ST37Q05,y=ST57Q01),data = subset(df,!is.na(df$ST37Q05)))+#x is Math Self-Efficacy - Solving Equation 1
+  geom_boxplot()                                   #y is Out-of-School Study Time - Homework
+```
+
+```{r}
+interest_index_begin<-which(colnames(df)=="PV1MACS")
+len<-5
+interest_index_end<-interest_index_begin+len-1
+apply(df[interest_index_begin:interest_index_end],2,de)
+
+```
+
