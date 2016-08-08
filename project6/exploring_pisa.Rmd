@@ -42,6 +42,7 @@ ggplot(aes(x=ST37Q05,y=ST57Q01),data = subset(df,!is.na(df$ST37Q05)))+#x is Math
 ```
 
 ```{r}
+###construct new data frame
 interest_index_begin<-which(colnames(df)=="PV1MATH")
 len<-38
 interest_index_end<-interest_index_begin+len-1
@@ -56,6 +57,13 @@ interest_index_end<-interest_index_begin+len-1
 reading_names=colnames(df)[interest_index_begin:interest_index_end]
 df$reading_score <- rowMeans(subset(df, select = reading_names), na.rm = FALSE)
 ###############################
+interest_index_begin<-which(colnames(df)=="PV1SCIE")
+len<-5
+interest_index_end<-interest_index_begin+len-1
+#apply(df[interest_index_begin:interest_index_end],2,de)
+science_names=colnames(df)[interest_index_begin:interest_index_end]
+df$science_score <- rowMeans(subset(df, select = science_names), na.rm = FALSE)
+############################
 df$ST88Q01 <-ordered(
   df$ST88Q01, levels = c("Strongly disagree", "Disagree","Agree","Strongly agree"))
 ############################
@@ -78,6 +86,10 @@ ggplot(aes(x=IC08Q11,y=reading_score),data = subset(df,!is.na(reading_score)& !i
   geom_boxplot()
 ggplot(aes(x=ST88Q01,y=reading_score),data = subset(df,!is.na(reading_score)& !is.na(ST88Q01)))+
   geom_boxplot()
+
+out=out[, !(colnames(out) %in% c("df.math_score"))]
+interested_columns<-c("math_score","reading_score","science_score","WEALTH","PARED_cut1","HISCED","IMMIG","MISCED","FISCED","ST28Q01","ENTUSE","ESCS","HEDRES","HOMEPOS")
+write.csv(out,file="D:/github/udacity_data_analyse/project6/data.csv")
 ```
 
 ```{r}
@@ -88,13 +100,13 @@ apply(df[interest_index_begin:interest_index_end],2,de)
 
 ```
 
-点图：Y 是人群各种平均score，颜色是父母受教育年限PARED（种类要多），size是population大小count，x可以（BELONG,COGACT,ENTUSE）must averagable
+点图：Y 是人群各种平均score，颜色是父母受教育年限PARED（种类要多），size是population大小count，x可以（WEALTH,BELONG,COGACT,ENTUSE）must averagable
 
 ```{r}
-df$PARED_cut1<-cut(df$PARED,c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18))
+df$PARED_cut1<-cut(df$PARED,c(2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18))
 df$PARED_cut2<-cut(df$PARED,c(2,7,10,11,12,13,14,15,16,17,18))
-ggplot(aes(x=PARED_cut2,y=math_score),data = subset(df,!is.na(math_score)& !is.na(PARED_cut2)))+
-  geom_boxplot()
+ggplot(aes(x=WEALTH,y=math_score),data = subset(df,!is.na(math_score)& !is.na(WEALTH)))+
+  geom_point()
 
 ggplot(aes(x=PARED_cut2,y=math_score),
        data=subset(df,!is.na(PARED_cut2) & !is.na(math_score)& !is.na(ST04Q01)))+
@@ -103,5 +115,22 @@ ggplot(aes(x=PARED_cut2,y=math_score),
 ggplot(aes(x=Category,y=x),
        data=manual)+
   geom_point()
+```
+
+
+```{r}
+###get the data done
+out.aggregate<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(IsBorrowerHomeowner))%>%             # filter out the observations with missed values
+  filter(!is.na(AvailableBankcardCredit))%>%
+  filter(!is.na(Occupation))%>%
+  group_by(Occupation,IsBorrowerHomeowner)%>%
+  summarise(mean_Credit=mean(AvailableBankcardCredit),
+            mean_income=mean(StatedMonthlyIncome),
+            median_income=median(StatedMonthlyIncome),
+            n=n())%>%
+  ungroup()%>%
+  arrange(Occupation)
+
 ```
 
