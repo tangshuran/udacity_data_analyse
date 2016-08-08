@@ -12,6 +12,7 @@ library(dplyr)
 library(ggplot2)
 library(reshape2)
 library(psych)
+library(RColorBrewer) 
 knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 setwd("D:/github/udacity_data_analyse/project6")
@@ -120,17 +121,24 @@ ggplot(aes(x=Category,y=x),
 
 ```{r}
 ###get the data done
-out.aggregate<-df%>% # here i construct new data frame, both long and wide, for later use
-  filter(!is.na(IsBorrowerHomeowner))%>%             # filter out the observations with missed values
-  filter(!is.na(AvailableBankcardCredit))%>%
-  filter(!is.na(Occupation))%>%
-  group_by(Occupation,IsBorrowerHomeowner)%>%
-  summarise(mean_Credit=mean(AvailableBankcardCredit),
-            mean_income=mean(StatedMonthlyIncome),
-            median_income=median(StatedMonthlyIncome),
+#aggregate(x$Frequency, by=list(Category=x$Category), FUN=sum)
+out.aggregate<-out%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(math_score))%>%             # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(PARED_cut1))%>%
+  group_by(PARED_cut1)%>%
+  summarise(mean_math=mean(math_score),
+            mean_wealth=mean(WEALTH),
             n=n())%>%
-  ungroup()%>%
-  arrange(Occupation)
-
+  ungroup()#%>%
+  #arrange(Occupation)
+#with(out.aggregate, symbols(x=mean_wealth, y=mean_math, circles=n, inches=1,
+ #                           bg=PARED_cut1, fg=NULL))
+mycolors = c(brewer.pal(name="Dark2", n = 8), brewer.pal(name="Paired", n = 10))
+ggplot(aes(x=mean_wealth,y=mean_math,color=PARED_cut1,size=n),data=out.aggregate)+
+  geom_point(alpha=0.8)+
+  scale_size(range = c(2, 50))+
+  #scale_colour_brewer(palette=1)
+  scale_color_manual(values = mycolors)
 ```
 
