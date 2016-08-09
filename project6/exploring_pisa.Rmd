@@ -121,6 +121,12 @@ ggplot(aes(x=Category,y=x),
 So, x:WEALTH,ENTUSE,ESCS,HEDRES,HOMEPOS     y:reading_score , science_score, math_score, group:PARED_cut1,HISCED,IMMIG,MISCED,FISCED,ST28Q01
 
 ```{r}
+ggplot(aes(x=science_score,y=math_score),data = subset(df,!is.na(math_score)& !is.na(science_score)))+
+  geom_point(alpha=0.01,color='blue')
+
+```
+
+```{r}
 ###get the data done
 #aggregate(x$Frequency, by=list(Category=x$Category), FUN=sum)
 out.aggregate.PARED_cut1<-out%>% # here i construct new data frame, both long and wide, for later use
@@ -151,8 +157,8 @@ ggplot(aes(x=mean_wealth,y=mean_math,color=PARED_cut1,size=n),data=out.aggregate
 out$ST28Q01 <-ordered(
   out$ST28Q01, levels = c("0-10 books ", "11-25 books ","26-100 books ","101-200 books ","201-500 books ","More than 500 books"))
 out.aggregate.ST28Q01<-out%>% # here i construct new data frame, both long and wide, for later use
-  filter(!is.na(math_score))%>%             # filter out the observations with missed values
-  filter(!is.na(WEALTH))%>%
+  filter(!is.na(science_score))%>%             # filter out the observations with missed values
+  filter(!is.na(HEDRES))%>%
   filter(!is.na(ST28Q01))%>%
   group_by(ST28Q01)%>%
   summarise(mean_math=mean(math_score),
@@ -166,7 +172,7 @@ out.aggregate.ST28Q01<-out%>% # here i construct new data frame, both long and w
             n=n())%>%
   ungroup()
 
-ggplot(aes(x=mean_entertainment,y=mean_reading,color=ST28Q01,size=n),data=out.aggregate.ST28Q01)+
+ggplot(aes(x=mean_home_edu_resource,y=mean_science,color=ST28Q01,size=n),data=out.aggregate.ST28Q01)+
   geom_point(alpha=0.8)+
   #scale_size(range = c(10.77, 50))+
   scale_size_area(max_size = 50)+
