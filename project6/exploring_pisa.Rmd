@@ -118,6 +118,7 @@ ggplot(aes(x=Category,y=x),
   geom_point()
 ```
 
+So, x:WEALTH,ENTUSE,ESCS,HEDRES,HOMEPOS     y:reading_score , science_score, math_score, group:PARED_cut1,HISCED,IMMIG,MISCED,FISCED,ST28Q01
 
 ```{r}
 ###get the data done
@@ -134,6 +135,7 @@ out.aggregate<-out%>% # here i construct new data frame, both long and wide, for
   #arrange(Occupation)
 #with(out.aggregate, symbols(x=mean_wealth, y=mean_math, circles=n, inches=1,
  #                           bg=PARED_cut1, fg=NULL))
+
 mycolors = c(brewer.pal(name="Dark2", n = 8), brewer.pal(name="Paired", n = 10))
 ggplot(aes(x=mean_wealth,y=mean_math,color=PARED_cut1,size=n),data=out.aggregate)+
   geom_point(alpha=0.8)+
