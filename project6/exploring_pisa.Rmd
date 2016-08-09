@@ -123,7 +123,7 @@ So, x:WEALTH,ENTUSE,ESCS,HEDRES,HOMEPOS     y:reading_score , science_score, mat
 ```{r}
 ###get the data done
 #aggregate(x$Frequency, by=list(Category=x$Category), FUN=sum)
-out.aggregate<-out%>% # here i construct new data frame, both long and wide, for later use
+out.aggregate.PARED_cut1<-out%>% # here i construct new data frame, both long and wide, for later use
   filter(!is.na(math_score))%>%             # filter out the observations with missed values
   filter(!is.na(WEALTH))%>%
   filter(!is.na(PARED_cut1))%>%
@@ -137,10 +137,58 @@ out.aggregate<-out%>% # here i construct new data frame, both long and wide, for
  #                           bg=PARED_cut1, fg=NULL))
 
 mycolors = c(brewer.pal(name="Dark2", n = 8), brewer.pal(name="Paired", n = 10))
-ggplot(aes(x=mean_wealth,y=mean_math,color=PARED_cut1,size=n),data=out.aggregate)+
+ggplot(aes(x=mean_wealth,y=mean_math,color=PARED_cut1,size=n),data=out.aggregate.PARED_cut1)+
   geom_point(alpha=0.8)+
-  scale_size(range = c(2, 50))+
+  #scale_size(range = c(2, 50))+
+  scale_size_area(max_size = 50)+
   #scale_colour_brewer(palette=1)
   scale_color_manual(values = mycolors)
+
+
 ```
+
+```{r}
+out$ST28Q01 <-ordered(
+  out$ST28Q01, levels = c("0-10 books ", "11-25 books ","26-100 books ","101-200 books ","201-500 books ","More than 500 books"))
+out.aggregate.ST28Q01<-out%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(math_score))%>%             # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ST28Q01))%>%
+  group_by(ST28Q01)%>%
+  summarise(mean_math=mean(math_score),
+            mean_reading=mean(reading_score),
+            mean_science=mean(science_score),
+            mean_wealth=mean(WEALTH),
+            mean_entertainment=mean(ENTUSE),
+            mean_status=mean(ESCS),
+            mean_home_edu_resource=mean(HEDRES),
+            mean_possessions=mean(HOMEPOS),
+            n=n())%>%
+  ungroup()
+
+ggplot(aes(x=mean_entertainment,y=mean_reading,color=ST28Q01,size=n),data=out.aggregate.ST28Q01)+
+  geom_point(alpha=0.8)+
+  #scale_size(range = c(10.77, 50))+
+  scale_size_area(max_size = 50)+
+  scale_color_manual(values = mycolors)
+```
+PARED_cut1,HISCED,IMMIG,MISCED,FISCED,ST28Q01
+```{r}
+out.aggregate.IMMIG<-out%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(math_score))%>%             # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ST28Q01))%>%
+  group_by(IMMIG)%>%
+  summarise(mean_math=mean(math_score),
+            mean_wealth=mean(WEALTH),
+            n=n())%>%
+  ungroup()
+
+ggplot(aes(x=mean_wealth,y=mean_math,color=IMMIG,size=n),data=out.aggregate.IMMIG)+
+  geom_point(alpha=0.8)+
+  scale_size_area(max_size = 50)+
+  scale_color_manual(values = mycolors)
+
+```
+
 
