@@ -1,0 +1,24 @@
+<!----------------------------------------------------------------->
+<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
+<!----------------------------------------------------------------->
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<div id="chartContainer">
+  <script src="/lib/d3.v3.4.8.js"></script>
+  <script src="/dist/dimple.v2.2.0.js"></script>
+  <script type="text/javascript">
+    var svg = dimple.newSvg("#chartContainer", 590, 460);
+    d3.csv("/dataset/data_pared.csv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(80, 80, 480, 300)
+      myChart.addMeasureAxis("x", "mean_wealth");
+      myChart.addMeasureAxis("y", "mean_math");
+	  myChart.addMeasureAxis("z", "n");
+      myChart.addSeries("PARED_cut1", dimple.plot.bubble);
+      myChart.addLegend(60, 10, 510, 20, "right");
+      myChart.draw();
+    });
+  </script>
+</div>
+</html>
