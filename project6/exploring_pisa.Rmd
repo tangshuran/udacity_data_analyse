@@ -135,6 +135,8 @@ out.aggregate.PARED_cut1<-out%>% # here i construct new data frame, both long an
   filter(!is.na(PARED_cut1))%>%
   group_by(PARED_cut1)%>%
   summarise(mean_math=mean(math_score),
+            mean_science=mean(science_score),
+            mean_reading=mean(reading_score),
             mean_wealth=mean(WEALTH),
             n=n())%>%
   ungroup()#%>%
@@ -197,4 +199,14 @@ ggplot(aes(x=mean_wealth,y=mean_math,color=IMMIG,size=n),data=out.aggregate.IMMI
 
 ```
 
+```{r}
+#clean data
+out.cleaned<-out[,c('math_score','science_score','reading_score','WEALTH','ST28Q01')]%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(math_score))%>%             # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ST28Q01))%>%
+  filter(!is.na(science_score))%>%
+  filter(!is.na(reading_score))
+
+```
 
