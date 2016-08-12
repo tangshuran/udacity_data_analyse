@@ -180,7 +180,7 @@ out.aggregate.ST28Q01<-df%>% # here i construct new data frame, both long and wi
             mean_wealth=mean(WEALTH),
             mean_entertainment=mean(ENTUSE),
             mean_possessions=mean(HOMEPOS),
-            n=n())%>%
+            size=n())%>%
   ungroup()
 out.aggregate.ST28Q01['mean_wealth']<-out.aggregate.ST28Q01['mean_wealth']+2
 out.aggregate.ST28Q01['mean_possessions']<-out.aggregate.ST28Q01['mean_possessions']+2
@@ -205,7 +205,7 @@ out.aggregate.HISCED<-df%>% # here i construct new data frame, both long and wid
             mean_wealth=mean(WEALTH),
             mean_entertainment=mean(ENTUSE),
             mean_possessions=mean(HOMEPOS),
-            n=n())%>%
+            size=n())%>%
   ungroup()
 out.aggregate.HISCED['mean_wealth']<-out.aggregate.HISCED['mean_wealth']+2
 out.aggregate.HISCED['mean_possessions']<-out.aggregate.HISCED['mean_possessions']+2
@@ -231,7 +231,7 @@ out.aggregate.PARED_cut1<-df%>% # here i construct new data frame, both long and
             mean_wealth=mean(WEALTH),
             mean_entertainment=mean(ENTUSE),
             mean_possessions=mean(HOMEPOS),
-            n=n())%>%
+            size=n())%>%
   ungroup()
 out.aggregate.PARED_cut1['mean_wealth']<-out.aggregate.PARED_cut1['mean_wealth']+2
 out.aggregate.PARED_cut1['mean_possessions']<-out.aggregate.PARED_cut1['mean_possessions']+2
@@ -254,9 +254,9 @@ out.aggregate.IMMIG<-df%>% # here i construct new data frame, both long and wide
             mean_reading=mean(reading_score),
             mean_science=mean(science_score),
             mean_wealth=mean(WEALTH),
-            mean_entertainment=mean(ENTUSE),
+            mean_entertainment=mean(ENTUSE,na.rm = TRUE),
             mean_possessions=mean(HOMEPOS),
-            n=n())%>%
+            size=n())%>%
   ungroup()
 out.aggregate.IMMIG['mean_wealth']<-out.aggregate.IMMIG['mean_wealth']+2
 out.aggregate.IMMIG['mean_possessions']<-out.aggregate.IMMIG['mean_possessions']+2
@@ -298,6 +298,24 @@ out.cleaned<-out[,c('math_score','science_score','reading_score','WEALTH','ST28Q
   filter(!is.na(ST28Q01))%>%
   filter(!is.na(science_score))%>%
   filter(!is.na(reading_score))
+
+```
+```{r}
+out.aggregate.IMMIG2<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(science_score))%>%
+  filter(!is.na(math_score))%>%
+  filter(!is.na(reading_score))%>%   # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(IMMIG))%>%
+  group_by(IMMIG)%>%
+  summarise(mean_math=mean(math_score),
+            mean_reading=mean(reading_score),
+            mean_science=mean(science_score),
+            mean_wealth=mean(WEALTH),
+            mean_entertainment=mean(ENTUSE,na.rm = TRUE),
+            mean_possessions=mean(HOMEPOS),
+            size=n())%>%
+  ungroup()
 
 ```
 

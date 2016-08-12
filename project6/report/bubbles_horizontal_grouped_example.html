@@ -11,9 +11,9 @@
 <option value="mean_science">Student Science score</option>
 </select>
 <select id = "group_by">
+<option value="Parents_education_level">Highest Parents Education Level</option>
 <option value="Immigration_status">Immigration Status</option>
 <option value="books">Home Owned Books</option> 
-<option value="Parents_education_level">Highest Parents Education Level</option>
 <option value="Parents_education_year">Highest Parents Education Time</option>
 </select>
 <select id = "family_status">
@@ -27,15 +27,15 @@
   <script type="text/javascript">
 	var x_name='mean_wealth',
 	y_name='mean_math',
-	group_name='Parents_education_year';
+	group_name='Parents_education_level';
 	var svg = dimple.newSvg("#chartContainer", 590, 460);
-    d3.csv("/dataset/data_PARED_cut1.csv", function (data) {
+    d3.csv("/data/data_HISCED.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300);
-      myChart.addMeasureAxis("x", 'mean_wealth');
-      myChart.addMeasureAxis("y", 'mean_math');
+      myChart.addMeasureAxis("x", x_name);
+      myChart.addMeasureAxis("y", y_name);
 	  myChart.addMeasureAxis("z", "size");
-      var mySeries1=myChart.addSeries('Parents_education_year', dimple.plot.bubble);
+      var mySeries1=myChart.addSeries(group_name, dimple.plot.bubble);
 	  mySeries1.addOrderRule(["(2,3]", "(3,4]", "(4,5]", "(5,7]", "(7,8]", "(8,9]", "(9,10]","(10,11]","(11,12]","(12,13]","(13,14]","(14,15]","(15,16]","(16,17]","(17,18]"]);
       myChart.addLegend(60, 10, 510, 20, "right");
       myChart.draw();
@@ -62,7 +62,7 @@
 	d3.select("svg").remove();
 	var svg = dimple.newSvg("#chartContainer", 590, 460);
 	if(group_name=='Parents_education_year'){
-	d3.csv("/dataset/data_PARED_cut1.csv", function (data) {
+	d3.csv("/data/data_PARED_cut1.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300)
       myChart.addMeasureAxis("x", x_name);
@@ -73,7 +73,7 @@
       myChart.draw();
     });
 	} else if(group_name=='Parents_education_level'){
-	d3.csv("/dataset/data_HISCED.csv", function (data) {
+	d3.csv("/data/data_HISCED.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300)
       myChart.addMeasureAxis("x", x_name);
@@ -84,7 +84,7 @@
       myChart.draw();
     });
 	}else if(group_name=='Immigration_status'){
-	d3.csv("/dataset/data_IMMIG.csv", function (data) {
+	d3.csv("/data/data_IMMIG.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300)
       myChart.addMeasureAxis("x", x_name);
@@ -96,7 +96,7 @@
     });
 	
 	}else{
-	d3.csv("/dataset/data_ST28Q01.csv", function (data) {
+	d3.csv("/data/data_ST28Q01.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300)
       myChart.addMeasureAxis("x", x_name);
