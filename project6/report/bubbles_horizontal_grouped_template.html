@@ -2,16 +2,17 @@
 <meta charset="utf-8">
 <html>
 <div id="chartContainer">
-  {scriptDependencies}
+  <script src="/lib/d3.v3.4.8.js"></script>
+  <script src="/dist/dimple.v2.2.0.js"></script>
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
-    d3.tsv("/data/example_data.tsv", function (data) {
+    d3.csv("/dataset/data_PARED_cut1.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(80, 30, 480, 330)
-      myChart.addMeasureAxis("x", "Unit Sales");
-      myChart.addCategoryAxis("y", ["Price Tier", "Channel"]);
-      myChart.addMeasureAxis("z", "Operating Profit");
-      myChart.addSeries("Channel", dimple.plot.bubble);
+      myChart.setBounds(80, 80, 480, 330)
+      myChart.addMeasureAxis("x", "mean_wealth");
+      myChart.addMeasureAxis("y", "mean_math");
+      myChart.addMeasureAxis("z", "size");
+      myChart.addSeries("Parents_education_year", dimple.plot.bubble);
       myChart.addLegend(60, 10, 510, 20, "right");
       myChart.draw();
     });

@@ -6,57 +6,108 @@
 <html>
 <body>
 <select id = "student_score">
-<option value="math">Student Maths score</option>
-<option value="read">Student Reading score</option> 
-<option value="science">Student Science score</option>
+<option value="mean_math">Student Maths score</option>
+<option value="mean_reading">Student Reading score</option> 
+<option value="mean_science">Student Science score</option>
 </select>
 <select id = "group_by">
-<option value="immagration">Immigration Status</option>
-<option value="book">Home Owned Books</option> 
-<option value="paredu">Highest Parents Education Level</option>
+<option value="Immigration_status">Immigration Status</option>
+<option value="books">Home Owned Books</option> 
+<option value="Parents_education_level">Highest Parents Education Level</option>
+<option value="Parents_education_year">Highest Parents Education Time</option>
 </select>
-<select id = "family status">
-<option value="wealth">Family Wealth Status</option>
-<option value="entertainment">Home Entertainment Status</option> 
-<option value="possession">Home Possession</option>
+<select id = "family_status">
+<option value="mean_wealth">Family Wealth Status</option>
+<option value="mean_entertainment">Home Entertainment Status</option> 
+<option value="mean_possessions">Home Possession</option>
 </select>  
 <div id="chartContainer">
   <script src="/lib/d3.v3.4.8.js"></script>
   <script src="/dist/dimple.v2.2.0.js"></script>
   <script type="text/javascript">
-    var svg = dimple.newSvg("#chartContainer", 590, 460);
-    d3.csv("/dataset/data_pared.csv", function (data) {
+	var x_name='mean_wealth',
+	y_name='mean_math',
+	group_name='Parents_education_year';
+	var svg = dimple.newSvg("#chartContainer", 590, 460);
+    d3.csv("/dataset/data_PARED_cut1.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(80, 80, 480, 300)
-      myChart.addMeasureAxis("x", "mean_wealth");
-      myChart.addMeasureAxis("y", "mean_math");
-	  myChart.addMeasureAxis("z", "n");
-      myChart.addSeries("PARED_cut1", dimple.plot.bubble);
+      myChart.setBounds(80, 80, 480, 300);
+      myChart.addMeasureAxis("x", 'mean_wealth');
+      myChart.addMeasureAxis("y", 'mean_math');
+	  myChart.addMeasureAxis("z", "size");
+      var mySeries1=myChart.addSeries('Parents_education_year', dimple.plot.bubble);
+	  mySeries1.addOrderRule(["(2,3]", "(3,4]", "(4,5]", "(5,7]", "(7,8]", "(8,9]", "(9,10]","(10,11]","(11,12]","(12,13]","(13,14]","(14,15]","(15,16]","(16,17]","(17,18]"]);
       myChart.addLegend(60, 10, 510, 20, "right");
       myChart.draw();
     });
     d3.select('#student_score')
 		.on('change', function() {
     var newData = d3.select(this).property('value');
-      y_name = newData;
-		updateChart();
-		});
+	y_name = newData;
+	updateChart();
+	});
+	d3.select('#group_by')
+		.on('change', function() {
+    var newData = d3.select(this).property('value');
+	group_name = newData;
+	updateChart();
+	});
+	d3.select('#family_status')
+		.on('change', function() {
+    var newData = d3.select(this).property('value');
+	x_name = newData;
+	updateChart();
+	});
 	function updateChart() {
-	if(y_name=='science'){
 	d3.select("svg").remove();
 	var svg = dimple.newSvg("#chartContainer", 590, 460);
-	d3.csv("/dataset/data_new_Pared.csv", function (data) {
+	if(group_name=='Parents_education_year'){
+	d3.csv("/dataset/data_PARED_cut1.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300)
-      myChart.addMeasureAxis("x", "mean_wealth");
-      myChart.addMeasureAxis("y", "mean_science");
-	  myChart.addMeasureAxis("z", "n");
-      myChart.addSeries("PARED_cut1", dimple.plot.bubble);
+      myChart.addMeasureAxis("x", x_name);
+      myChart.addMeasureAxis("y", y_name);
+	  myChart.addMeasureAxis("z", "size");
+      var mySeries=myChart.addSeries(group_name, dimple.plot.bubble);
       myChart.addLegend(60, 10, 510, 20, "right");
       myChart.draw();
     });
-	}
-	}
+	} else if(group_name=='Parents_education_level'){
+	d3.csv("/dataset/data_HISCED.csv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(80, 80, 480, 300)
+      myChart.addMeasureAxis("x", x_name);
+      myChart.addMeasureAxis("y", y_name);
+	  myChart.addMeasureAxis("z", "size");
+      var mySeries=myChart.addSeries(group_name, dimple.plot.bubble);
+      myChart.addLegend(60, 10, 510, 20, "right");
+      myChart.draw();
+    });
+	}else if(group_name=='Immigration_status'){
+	d3.csv("/dataset/data_IMMIG.csv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(80, 80, 480, 300)
+      myChart.addMeasureAxis("x", x_name);
+      myChart.addMeasureAxis("y", y_name);
+	  myChart.addMeasureAxis("z", "size");
+      var mySeries=myChart.addSeries(group_name, dimple.plot.bubble);
+      myChart.addLegend(60, 10, 510, 20, "right");
+      myChart.draw();
+    });
+	
+	}else{
+	d3.csv("/dataset/data_ST28Q01.csv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(80, 80, 480, 300)
+      myChart.addMeasureAxis("x", x_name);
+      myChart.addMeasureAxis("y", y_name);
+	  myChart.addMeasureAxis("z", "size");
+      var mySeries=myChart.addSeries(group_name, dimple.plot.bubble);
+      myChart.addLegend(60, 10, 510, 20, "right");
+      myChart.draw();
+	});
+	};
+	};
   </script>
 </div>
 </html>

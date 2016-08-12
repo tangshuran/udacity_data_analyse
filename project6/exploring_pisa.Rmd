@@ -47,7 +47,7 @@ ggplot(aes(x=ST37Q05,y=ST57Q01),data = subset(df,!is.na(df$ST37Q05)))+#x is Math
 interest_index_begin<-which(colnames(df)=="PV1MATH")
 len<-38
 interest_index_end<-interest_index_begin+len-1
-apply(df[interest_index_begin:interest_index_end],2,de)
+#apply(df[interest_index_begin:interest_index_end],2,de)
 math_names=colnames(df)[interest_index_begin:interest_index_end]
 df$math_score <- rowMeans(subset(df, select = math_names), na.rm = FALSE)
 ###########################################
@@ -67,6 +67,13 @@ df$science_score <- rowMeans(subset(df, select = science_names), na.rm = FALSE)
 ############################
 df$ST88Q01 <-ordered(
   df$ST88Q01, levels = c("Strongly disagree", "Disagree","Agree","Strongly agree"))
+
+df$ST28Q01 <-ordered(
+  df$ST28Q01, levels = c("0-10 books ","11-25 books ","26-100 books ","101-200 books ","201-500 books ","More than 500 books"))
+df$IMMIG <-ordered(
+  df$IMMIG, levels = c( "Native","First-Generation","Second-Generation"))
+df$HEDRES <-ordered(
+  df$HEDRES, levels = c( "Native","First-Generation","Second-Generation"))
 ############################
 interest_index_begin<-which(colnames(df)=="IC08Q01")
 len<-8
@@ -156,11 +163,15 @@ ggplot(aes(x=mean_wealth,y=mean_math,color=PARED_cut1,size=n),data=out.aggregate
 ```
 
 ```{r}
-out$ST28Q01 <-ordered(
-  out$ST28Q01, levels = c("0-10 books ", "11-25 books ","26-100 books ","101-200 books ","201-500 books ","More than 500 books"))
-out.aggregate.ST28Q01<-out%>% # here i construct new data frame, both long and wide, for later use
-  filter(!is.na(science_score))%>%             # filter out the observations with missed values
-  filter(!is.na(HEDRES))%>%
+df$ST28Q01 <-ordered(
+  df$ST28Q01, levels = c("0-10 books ", "11-25 books ","26-100 books ","101-200 books ","201-500 books ","More than 500 books"))
+out.aggregate.ST28Q01<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(science_score))%>%
+  filter(!is.na(math_score))%>%
+  filter(!is.na(reading_score))%>%   # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ENTUSE))%>%
+  filter(!is.na(HOMEPOS))%>%
   filter(!is.na(ST28Q01))%>%
   group_by(ST28Q01)%>%
   summarise(mean_math=mean(math_score),
@@ -168,20 +179,100 @@ out.aggregate.ST28Q01<-out%>% # here i construct new data frame, both long and w
             mean_science=mean(science_score),
             mean_wealth=mean(WEALTH),
             mean_entertainment=mean(ENTUSE),
-            mean_status=mean(ESCS),
-            mean_home_edu_resource=mean(HEDRES),
             mean_possessions=mean(HOMEPOS),
             n=n())%>%
   ungroup()
+out.aggregate.ST28Q01['mean_wealth']<-out.aggregate.ST28Q01['mean_wealth']+2
+out.aggregate.ST28Q01['mean_possessions']<-out.aggregate.ST28Q01['mean_possessions']+2
+out.aggregate.ST28Q01['mean_entertainment']<-out.aggregate.ST28Q01['mean_entertainment']+2
+colnames(out.aggregate.ST28Q01)[which(names(out.aggregate.ST28Q01) == "ST28Q01")] <- "books"
+write.csv(out.aggregate.ST28Q01,file="D:/github/udacity_data_analyse/project6/data_ST28Q01.csv")
+
+df$HISCED <-ordered(
+  df$HISCED, levels = c("None" , "ISCED 1","ISCED 2","ISCED 3B, C","ISCED 3A","ISCED 4","ISCED 5B","ISCED 5A, 6"))
+out.aggregate.HISCED<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(science_score))%>%
+  filter(!is.na(math_score))%>%
+  filter(!is.na(reading_score))%>%   # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ENTUSE))%>%
+  filter(!is.na(HOMEPOS))%>%
+  filter(!is.na(HISCED))%>%
+  group_by(HISCED)%>%
+  summarise(mean_math=mean(math_score),
+            mean_reading=mean(reading_score),
+            mean_science=mean(science_score),
+            mean_wealth=mean(WEALTH),
+            mean_entertainment=mean(ENTUSE),
+            mean_possessions=mean(HOMEPOS),
+            n=n())%>%
+  ungroup()
+out.aggregate.HISCED['mean_wealth']<-out.aggregate.HISCED['mean_wealth']+2
+out.aggregate.HISCED['mean_possessions']<-out.aggregate.HISCED['mean_possessions']+2
+out.aggregate.HISCED['mean_entertainment']<-out.aggregate.HISCED['mean_entertainment']+2
+colnames(out.aggregate.HISCED)[which(names(out.aggregate.HISCED) == "HISCED")] <- "Parents_education_level"
+write.csv(out.aggregate.HISCED,file="D:/github/udacity_data_analyse/project6/data_HISCED.csv")
+
+
+#df$PARED_cut1 <-ordered(
+#  df$PARED_cut1, levels = c("None" , "ISCED 1","ISCED 2","ISCED 3B, C","ISCED 3A","ISCED 4","ISCED 5B","ISCED 5A, 6"))
+out.aggregate.PARED_cut1<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(science_score))%>%
+  filter(!is.na(math_score))%>%
+  filter(!is.na(reading_score))%>%   # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ENTUSE))%>%
+  filter(!is.na(HOMEPOS))%>%
+  filter(!is.na(PARED_cut1))%>%
+  group_by(PARED_cut1)%>%
+  summarise(mean_math=mean(math_score),
+            mean_reading=mean(reading_score),
+            mean_science=mean(science_score),
+            mean_wealth=mean(WEALTH),
+            mean_entertainment=mean(ENTUSE),
+            mean_possessions=mean(HOMEPOS),
+            n=n())%>%
+  ungroup()
+out.aggregate.PARED_cut1['mean_wealth']<-out.aggregate.PARED_cut1['mean_wealth']+2
+out.aggregate.PARED_cut1['mean_possessions']<-out.aggregate.PARED_cut1['mean_possessions']+2
+out.aggregate.PARED_cut1['mean_entertainment']<-out.aggregate.PARED_cut1['mean_entertainment']+2
+colnames(out.aggregate.PARED_cut1)[which(names(out.aggregate.PARED_cut1) == "PARED_cut1")] <- "Parents_education_year"
+write.csv(out.aggregate.PARED_cut1,file="D:/github/udacity_data_analyse/project6/data_PARED_cut1.csv")
+
+df$IMMIG <-ordered(
+  df$IMMIG, levels = c( "Native","First-Generation","Second-Generation"))
+out.aggregate.IMMIG<-df%>% # here i construct new data frame, both long and wide, for later use
+  filter(!is.na(science_score))%>%
+  filter(!is.na(math_score))%>%
+  filter(!is.na(reading_score))%>%   # filter out the observations with missed values
+  filter(!is.na(WEALTH))%>%
+  filter(!is.na(ENTUSE))%>%
+  filter(!is.na(HOMEPOS))%>%
+  filter(!is.na(IMMIG))%>%
+  group_by(IMMIG)%>%
+  summarise(mean_math=mean(math_score),
+            mean_reading=mean(reading_score),
+            mean_science=mean(science_score),
+            mean_wealth=mean(WEALTH),
+            mean_entertainment=mean(ENTUSE),
+            mean_possessions=mean(HOMEPOS),
+            n=n())%>%
+  ungroup()
+out.aggregate.IMMIG['mean_wealth']<-out.aggregate.IMMIG['mean_wealth']+2
+out.aggregate.IMMIG['mean_possessions']<-out.aggregate.IMMIG['mean_possessions']+2
+out.aggregate.IMMIG['mean_entertainment']<-out.aggregate.IMMIG['mean_entertainment']+2
+colnames(out.aggregate.IMMIG)[which(names(out.aggregate.IMMIG) == "IMMIG")] <- "Immigration_status"
+write.csv(out.aggregate.IMMIG,file="D:/github/udacity_data_analyse/project6/data_IMMIG.csv")
+```
+PARED_cut1,HISCED,IMMIG,MISCED,FISCED,ST28Q01
+```{r}
 
 ggplot(aes(x=mean_home_edu_resource,y=mean_science,color=ST28Q01,size=n),data=out.aggregate.ST28Q01)+
   geom_point(alpha=0.8)+
   #scale_size(range = c(10.77, 50))+
   scale_size_area(max_size = 50)+
   scale_color_manual(values = mycolors)
-```
-PARED_cut1,HISCED,IMMIG,MISCED,FISCED,ST28Q01
-```{r}
+
 out.aggregate.IMMIG<-out%>% # here i construct new data frame, both long and wide, for later use
   filter(!is.na(math_score))%>%             # filter out the observations with missed values
   filter(!is.na(WEALTH))%>%
