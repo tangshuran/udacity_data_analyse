@@ -246,8 +246,6 @@ out.aggregate.IMMIG<-df%>% # here i construct new data frame, both long and wide
   filter(!is.na(math_score))%>%
   filter(!is.na(reading_score))%>%   # filter out the observations with missed values
   filter(!is.na(WEALTH))%>%
-  filter(!is.na(ENTUSE))%>%
-  filter(!is.na(HOMEPOS))%>%
   filter(!is.na(IMMIG))%>%
   group_by(IMMIG)%>%
   summarise(mean_math=mean(math_score),
