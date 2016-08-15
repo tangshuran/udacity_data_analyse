@@ -315,13 +315,5 @@ out.aggregate.IMMIG2<-df%>% # here i construct new data frame, both long and wid
             size=n())%>%
   ungroup()
 
-sam<-df[sample(nrow(df), 10000), ]
-sam$math_score <- rowMeans(subset(sam, select = math_names), na.rm = FALSE)
-sam.cleaned<-sam[,c('math_score','WEALTH','ST28Q01')]%>% # here i construct new data frame, both long and wide, for later use
-  filter(!is.na(math_score))%>%             # filter out the observations with missed values
-  filter(!is.na(WEALTH))%>%
- filter(!is.na(ST28Q01))
-sam.cleaned['WEALTH']<-sam.cleaned['WEALTH']+2
-write.csv(sam.cleaned,file="D:/github/udacity_data_analyse/project6/data_origin.csv")
 ```
 
