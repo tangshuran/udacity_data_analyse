@@ -25,23 +25,21 @@
   <script src="/lib/d3.v3.4.8.js"></script>
   <script src="/dist/dimple.v2.2.0.js"></script>
   <script type="text/javascript">
-  <!--the defautl chart is shown when the page is first time loaded-->
 	var x_name='mean_wealth',
 	y_name='mean_math',
-	group_name='PARED_cut1';
+	group_name='Parents_education_level';
 	var svg = dimple.newSvg("#chartContainer", 590, 460);
-    d3.csv("/data/backup/data_new_Pared.csv", function (data) {
+    d3.csv("/data/data_HISCED.csv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 80, 480, 300);
       myChart.addMeasureAxis("x", x_name);
       myChart.addMeasureAxis("y", y_name);
-	  myChart.addMeasureAxis("z", "n");
+	  myChart.addMeasureAxis("z", "size");
       var mySeries1=myChart.addSeries(group_name, dimple.plot.bubble);
 	  mySeries1.addOrderRule(["(2,3]", "(3,4]", "(4,5]", "(5,7]", "(7,8]", "(8,9]", "(9,10]","(10,11]","(11,12]","(12,13]","(13,14]","(14,15]","(15,16]","(16,17]","(17,18]"]);
       myChart.addLegend(60, 10, 510, 20, "right");
       myChart.draw();
     });
-	<!--detect the option changes and invoke the updateChart function-->
     d3.select('#student_score')
 		.on('change', function() {
     var newData = d3.select(this).property('value');
@@ -60,7 +58,6 @@
 	x_name = newData;
 	updateChart();
 	});
-	<!--updateChart function will select the right dataframe and update the chart when the audience choose a new option for the chart-->
 	function updateChart() {
 	d3.select("svg").remove();
 	var svg = dimple.newSvg("#chartContainer", 590, 460);
