@@ -112,7 +112,7 @@ apply(df[interest_index_begin:interest_index_end],2,de)
 
 ```{r}
 df$PARED_cut1<-cut(df$PARED,c(2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18))
-df$PARED_cut2<-cut(df$PARED,c(2,7,10,11,12,13,14,15,16,17,18))
+df$PARED_cut2<-cut(df$PARED,c(2,7,10,11,12,13,14,15,16,18))
 ggplot(aes(x=WEALTH,y=math_score),data = subset(df,!is.na(math_score)& !is.na(WEALTH)))+
   geom_point()
 
@@ -213,18 +213,19 @@ out.aggregate.HISCED['mean_entertainment']<-out.aggregate.HISCED['mean_entertain
 colnames(out.aggregate.HISCED)[which(names(out.aggregate.HISCED) == "HISCED")] <- "Parents_education_level"
 write.csv(out.aggregate.HISCED,file="D:/github/udacity_data_analyse/project6/data_HISCED.csv")
 
+df$PARED_cut2<-cut(df$PARED,c(2,7,10,11,12,13,14,15,16,18))
+df$PARED_cut2 <-ordered(
+  df$PARED_cut2, levels = c("None" , "ISCED 1","ISCED 2","ISCED 3B, C","ISCED 3A","ISCED 4","ISCED 5B","ISCED 5A, 6"))
 
-#df$PARED_cut1 <-ordered(
-#  df$PARED_cut1, levels = c("None" , "ISCED 1","ISCED 2","ISCED 3B, C","ISCED 3A","ISCED 4","ISCED 5B","ISCED 5A, 6"))
-out.aggregate.PARED_cut1<-df%>% # here i construct new data frame, both long and wide, for later use
+out.aggregate.PARED_cut2<-df%>% # here i construct new data frame, both long and wide, for later use
   filter(!is.na(science_score))%>%
   filter(!is.na(math_score))%>%
   filter(!is.na(reading_score))%>%   # filter out the observations with missed values
   filter(!is.na(WEALTH))%>%
   filter(!is.na(ENTUSE))%>%
   filter(!is.na(HOMEPOS))%>%
-  filter(!is.na(PARED_cut1))%>%
-  group_by(PARED_cut1)%>%
+  filter(!is.na(PARED_cut2))%>%
+  group_by(PARED_cut2)%>%
   summarise(mean_math=mean(math_score),
             mean_reading=mean(reading_score),
             mean_science=mean(science_score),
@@ -233,11 +234,11 @@ out.aggregate.PARED_cut1<-df%>% # here i construct new data frame, both long and
             mean_possessions=mean(HOMEPOS),
             size=n())%>%
   ungroup()
-out.aggregate.PARED_cut1['mean_wealth']<-out.aggregate.PARED_cut1['mean_wealth']+2
-out.aggregate.PARED_cut1['mean_possessions']<-out.aggregate.PARED_cut1['mean_possessions']+2
-out.aggregate.PARED_cut1['mean_entertainment']<-out.aggregate.PARED_cut1['mean_entertainment']+2
-colnames(out.aggregate.PARED_cut1)[which(names(out.aggregate.PARED_cut1) == "PARED_cut1")] <- "Parents_education_year"
-write.csv(out.aggregate.PARED_cut1,file="D:/github/udacity_data_analyse/project6/data_PARED_cut1.csv")
+out.aggregate.PARED_cut2['mean_wealth']<-out.aggregate.PARED_cut2['mean_wealth']+2
+out.aggregate.PARED_cut2['mean_possessions']<-out.aggregate.PARED_cut2['mean_possessions']+2
+out.aggregate.PARED_cut2['mean_entertainment']<-out.aggregate.PARED_cut2['mean_entertainment']+2
+colnames(out.aggregate.PARED_cut2)[which(names(out.aggregate.PARED_cut2) == "PARED_cut1")] <- "Parents_education_year"
+write.csv(out.aggregate.PARED_cut2,file="D:/github/udacity_data_analyse/project6/data_PARED_cut2.csv")
 
 df$IMMIG <-ordered(
   df$IMMIG, levels = c( "Native","First-Generation","Second-Generation"))
